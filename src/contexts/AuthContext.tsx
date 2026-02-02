@@ -212,8 +212,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      // Refresh profile
-      await fetchProfile(user.id);
+      // Update local state immediately (optimistic update)
+      setProfile(prev => prev ? { ...prev, ...updates } as Profile : null);
+      
       return { error: null };
     } catch (error) {
       return { error: error as Error };
