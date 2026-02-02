@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, X, CheckCircle, AlertCircle, ScanLine, Loader2 } from "lucide-react";
+import { Upload, FileText, X, CheckCircle, AlertCircle, ScanLine, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { usePDFParser } from "@/hooks/usePDFParser";
@@ -79,8 +79,8 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
           onDrop={handleDrop}
           className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
             isDragging
-              ? "border-primary bg-primary/5 scale-[1.02]"
-              : "border-border hover:border-primary/50 hover:bg-muted/50"
+              ? "border-primary bg-primary/10 scale-[1.02] shadow-glow"
+              : "border-border/50 hover:border-primary/50 hover:bg-muted/30"
           }`}
         >
           <input
@@ -91,14 +91,14 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
           />
           
           <div className="flex flex-col items-center gap-4">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
-              isDragging ? "gradient-primary" : "bg-primary/10"
+            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+              isDragging ? "gradient-primary shadow-glow" : "bg-primary/10"
             }`}>
-              <Upload className={`w-8 h-8 ${isDragging ? "text-primary-foreground" : "text-primary"}`} />
+              <Upload className={`w-10 h-10 ${isDragging ? "text-primary-foreground" : "text-primary"}`} />
             </div>
             
             <div>
-              <p className="font-semibold mb-1">
+              <p className="font-semibold text-lg mb-1">
                 Arraste seu currículo aqui
               </p>
               <p className="text-sm text-muted-foreground">
@@ -106,26 +106,27 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
               </p>
             </div>
 
-            <Button variant="outline" size="sm" className="pointer-events-none">
+            <Button variant="outline" size="sm" className="pointer-events-none border-primary/30 text-primary">
+              <Sparkles className="w-4 h-4 mr-2" />
               Selecionar arquivo
             </Button>
           </div>
         </div>
       ) : (
-        <div className="border border-border rounded-2xl p-6">
+        <div className="glass-card rounded-2xl p-6 border border-border/50">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              uploadStatus === "success" ? "bg-success/10" : 
-              uploadStatus === "error" ? "bg-danger/10" : "bg-primary/10"
+            <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+              uploadStatus === "success" ? "bg-success/20" : 
+              uploadStatus === "error" ? "bg-destructive/20" : "gradient-primary"
             }`}>
               {loading ? (
-                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                <Loader2 className="w-7 h-7 text-primary-foreground animate-spin" />
               ) : uploadStatus === "success" ? (
-                <CheckCircle className="w-6 h-6 text-success" />
+                <CheckCircle className="w-7 h-7 text-success" />
               ) : uploadStatus === "error" ? (
-                <AlertCircle className="w-6 h-6 text-danger" />
+                <AlertCircle className="w-7 h-7 text-destructive" />
               ) : (
-                <FileText className="w-6 h-6 text-primary" />
+                <FileText className="w-7 h-7 text-primary-foreground" />
               )}
             </div>
 
@@ -154,7 +155,7 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
             <button
               onClick={removeFile}
               disabled={loading}
-              className="p-2 rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
+              className="p-2 rounded-lg hover:bg-muted/50 transition-colors disabled:opacity-50"
             >
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
@@ -172,13 +173,13 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <FileText className="w-3 h-3" />
+      <div className="flex items-center justify-center gap-6 mt-6 text-xs text-muted-foreground">
+        <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/30">
+          <FileText className="w-3.5 h-3.5 text-primary" />
           PDFs textuais
         </span>
-        <span className="flex items-center gap-1">
-          <ScanLine className="w-3 h-3" />
+        <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/30">
+          <ScanLine className="w-3.5 h-3.5 text-primary" />
           PDFs escaneados (OCR)
         </span>
       </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, Download, Eye, ArrowRight, Sparkles } from "lucide-react";
+import { FileText, Download, Eye, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -52,19 +52,25 @@ export function ResumeComparison({
   return (
     <div className="w-full">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="comparison">Comparação</TabsTrigger>
-          <TabsTrigger value="base">ATS Base</TabsTrigger>
-          <TabsTrigger value="targeted">Direcionado</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/30 p-1">
+          <TabsTrigger value="comparison" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Comparação
+          </TabsTrigger>
+          <TabsTrigger value="base" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            ATS Base
+          </TabsTrigger>
+          <TabsTrigger value="targeted" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Direcionado
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="comparison" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Original */}
-            <div className="p-6 rounded-2xl bg-muted/50 border border-border">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-muted-foreground" />
+            <div className="p-6 rounded-2xl bg-muted/20 border border-border/30">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <h3 className="font-semibold">Currículo Original</h3>
               </div>
@@ -91,10 +97,10 @@ export function ResumeComparison({
                   </ul>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Skills</p>
-                  <div className="flex flex-wrap gap-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Skills</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {originalResume.skills.map((skill) => (
-                      <span key={skill} className="px-2 py-0.5 rounded-full bg-muted text-xs">
+                      <span key={skill} className="px-2.5 py-1 rounded-lg bg-muted/50 text-xs">
                         {skill}
                       </span>
                     ))}
@@ -105,14 +111,14 @@ export function ResumeComparison({
 
             {/* Optimized */}
             <div className="p-6 rounded-2xl bg-primary/5 border-2 border-primary/20 relative">
-              <div className="absolute -top-3 right-4 px-3 py-1 rounded-full gradient-primary text-xs font-medium text-primary-foreground flex items-center gap-1">
+              <div className="absolute -top-3 right-4 px-3 py-1 rounded-full gradient-primary text-xs font-medium text-primary-foreground flex items-center gap-1 shadow-glow">
                 <Sparkles className="w-3 h-3" />
                 Otimizado
               </div>
 
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-primary-foreground" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+                  <FileText className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold">Currículo ATS</h3>
               </div>
@@ -139,10 +145,10 @@ export function ResumeComparison({
                   </ul>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Skills</p>
-                  <div className="flex flex-wrap gap-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Skills</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {optimizedResume.skills.map((skill) => (
-                      <span key={skill} className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-medium">
+                      <span key={skill} className="px-2.5 py-1 rounded-lg bg-primary/20 text-primary text-xs font-medium border border-primary/30">
                         {skill}
                       </span>
                     ))}
@@ -153,13 +159,16 @@ export function ResumeComparison({
           </div>
 
           {/* Keywords */}
-          <div className="p-4 rounded-xl bg-muted/50 border border-border">
-            <p className="text-sm font-medium mb-2">Palavras-chave ATS inseridas:</p>
+          <div className="p-5 rounded-xl bg-muted/20 border border-border/30">
+            <p className="text-sm font-medium mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-success" />
+              Palavras-chave ATS inseridas:
+            </p>
             <div className="flex flex-wrap gap-2">
               {optimizedResume.keywords.map((keyword) => (
                 <span 
                   key={keyword} 
-                  className="px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium"
+                  className="px-3 py-1.5 rounded-lg bg-success/10 text-success text-sm font-medium border border-success/20"
                 >
                   {keyword}
                 </span>
@@ -169,20 +178,22 @@ export function ResumeComparison({
         </TabsContent>
 
         <TabsContent value="base">
-          <div className="p-8 rounded-2xl bg-card border border-border text-center">
-            <Eye className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-semibold mb-2">Currículo ATS Base</h3>
-            <p className="text-sm text-muted-foreground mb-6">
+          <div className="p-10 rounded-2xl bg-muted/20 border border-border/30 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-5">
+              <Eye className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Currículo ATS Base</h3>
+            <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">
               Versão otimizada para qualquer vaga da sua área.
               1 página, linguagem objetiva, foco em resultados.
             </p>
             <div className="flex justify-center gap-3">
-              <Button variant="outline">
-                <Eye className="w-4 h-4" />
+              <Button variant="outline" className="border-border/50">
+                <Eye className="w-4 h-4 mr-2" />
                 Visualizar
               </Button>
               <Button variant="default">
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 mr-2" />
                 Download PDF
               </Button>
             </div>
@@ -190,20 +201,22 @@ export function ResumeComparison({
         </TabsContent>
 
         <TabsContent value="targeted">
-          <div className="p-8 rounded-2xl bg-card border border-border text-center">
-            <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h3 className="font-semibold mb-2">Currículo Direcionado</h3>
-            <p className="text-sm text-muted-foreground mb-6">
+          <div className="p-10 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-5 shadow-glow">
+              <Sparkles className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Currículo Direcionado</h3>
+            <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">
               Ajustado especificamente para a vaga analisada.
               Skills reorganizadas, bullets reescritos, título ajustado.
             </p>
             <div className="flex justify-center gap-3">
-              <Button variant="outline">
-                <Eye className="w-4 h-4" />
+              <Button variant="outline" className="border-border/50">
+                <Eye className="w-4 h-4 mr-2" />
                 Visualizar
               </Button>
-              <Button variant="hero">
-                <Download className="w-4 h-4" />
+              <Button variant="hero" className="shadow-glow">
+                <Download className="w-4 h-4 mr-2" />
                 Download PDF
               </Button>
             </div>
