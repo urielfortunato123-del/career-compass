@@ -1,8 +1,15 @@
-import * as pdfjsLib from "pdfjs-dist";
 import Tesseract from "tesseract.js";
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs`;
+// Dynamically import PDF.js to avoid top-level await issues
+let pdfjsLib: typeof import("pdfjs-dist") | null = null;
+
+async function getPdfjs() {
+  if (!pdfjsLib) {
+    pdfjsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs`;
+  }
+  return pdfjsLib;
+}
 
 export interface OCRProgress {
   stage: "loading" | "extracting" | "ocr" | "complete";
@@ -31,9 +38,12 @@ export async function extractTextFromPDF(
     message: "Carregando PDF...",
   });
 
+  // Get PDF.js dynamically
+  const pdfjs = await getPdfjs();
+  
   // Load the PDF
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
   const pageCount = pdf.numPages;
 
   onProgress?.({

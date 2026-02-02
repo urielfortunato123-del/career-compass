@@ -3,6 +3,7 @@ import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.png";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,12 +19,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">V</span>
-          </div>
-          <span className="font-bold text-xl">
-            Vaga<span className="text-gradient">Justa</span>
-          </span>
+          <img src={logo} alt="VagaJusta" className="h-8 w-auto" />
         </a>
 
         {/* Desktop Navigation */}
