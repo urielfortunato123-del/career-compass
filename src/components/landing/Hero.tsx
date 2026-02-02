@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Target, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Hero() {
   return (
@@ -34,12 +35,14 @@ export function Hero() {
 
         {/* CTA Buttons */}
         <div className="animate-slide-up flex flex-col sm:flex-row gap-4 mb-12" style={{ animationDelay: "0.2s" }}>
-          <Button variant="hero" size="xl">
-            Analisar meu currículo
-            <ArrowRight className="w-5 h-5" />
+          <Button variant="hero" size="xl" asChild>
+            <Link to="/app">
+              Analisar meu currículo
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </Button>
-          <Button variant="outline" size="xl">
-            Ver como funciona
+          <Button variant="outline" size="xl" asChild>
+            <a href="#como-funciona">Ver como funciona</a>
           </Button>
         </div>
 
