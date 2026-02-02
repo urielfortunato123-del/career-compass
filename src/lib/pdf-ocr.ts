@@ -6,7 +6,11 @@ let pdfjsLib: typeof import("pdfjs-dist") | null = null;
 async function getPdfjs() {
   if (!pdfjsLib) {
     pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs`;
+    // Use the same version as the installed package
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/build/pdf.worker.min.mjs',
+      import.meta.url
+    ).toString();
   }
   return pdfjsLib;
 }
