@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import AppPage from "./pages/App";
 import AuthPage from "./pages/Auth";
 import HistoryPage from "./pages/History";
+import InstallPage from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/install" element={<InstallPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
