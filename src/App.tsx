@@ -13,6 +13,7 @@ import InstallPage from "./pages/Install";
 import HelpPage from "./pages/Help";
 import PrivacyPage from "./pages/Privacy";
 import TermsPage from "./pages/Terms";
+import CheckoutSuccessPage from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,11 @@ const App = () => (
             <Route path="/ajuda" element={<HelpPage />} />
             <Route path="/privacidade" element={<PrivacyPage />} />
             <Route path="/termos" element={<TermsPage />} />
+            <Route path="/checkout/success" element={
+              <ProtectedRoute>
+                <CheckoutSuccessPage />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
