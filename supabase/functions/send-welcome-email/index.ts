@@ -38,7 +38,7 @@ const handler = async (req: Request): Promise<Response> => {
     const userName = name || "usuário";
 
     const emailResponse = await resend.emails.send({
-      from: "VagaJusta <noreply@vagajusta.app>",
+      from: "VagaJusta <onboarding@resend.dev>",
       to: [email],
       subject: "🎉 Bem-vindo ao VagaJusta Pro!",
       html: `
