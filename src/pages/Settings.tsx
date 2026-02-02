@@ -20,7 +20,7 @@ import {
   MapPin,
   Save,
   ArrowLeft,
-  Sparkles,
+  Loader2,
   Crown
 } from "lucide-react";
 
@@ -421,7 +421,7 @@ export default function SettingsPage() {
               >
                 {saving ? (
                   <>
-                    <Sparkles className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     Salvando...
                   </>
                 ) : (
