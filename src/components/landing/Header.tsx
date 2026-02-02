@@ -1,21 +1,46 @@
-import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Menu, X, LogOut, Crown, Loader2, Settings } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, signOut, loading } = useAuth();
+  const [portalLoading, setPortalLoading] = useState(false);
+  const { user, signOut, loading, subscription } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível abrir o portal de assinatura.",
+        variant: "destructive",
+      });
+    } finally {
+      setPortalLoading(false);
+    }
   };
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border/30 bg-background/60 backdrop-blur-xl">
@@ -46,12 +71,34 @@ export function Header() {
           <LanguageSwitcher />
           {loading ? null : user ? (
             <>
+              {subscription.subscribed && (
+                <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">
+                  <Crown className="w-3 h-3" />
+                  PRO
+                </div>
+              )}
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/history">{t("common.history")}</Link>
               </Button>
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/app">{t("common.newAnalysis")}</Link>
               </Button>
+              {subscription.subscribed && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={handleManageSubscription}
+                  disabled={portalLoading}
+                >
+                  {portalLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Settings className="w-4 h-4" />
+                  )}
+                  <span className="ml-1">Assinatura</span>
+                </Button>
+              )}
               <Button variant="outline" size="sm" className="border-muted-foreground/30" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4" />
                 {t("common.logout")}
@@ -100,12 +147,33 @@ export function Header() {
             <hr className="border-border/50" />
             {user ? (
               <>
+                {subscription.subscribed && (
+                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-warning/10 text-warning text-xs font-medium w-fit">
+                    <Crown className="w-3 h-3" />
+                    PRO
+                  </div>
+                )}
                 <Button variant="ghost" className="justify-start" asChild>
                   <Link to="/history">{t("common.history")}</Link>
                 </Button>
                 <Button variant="ghost" className="justify-start" asChild>
                   <Link to="/app">{t("common.newAnalysis")}</Link>
                 </Button>
+                {subscription.subscribed && (
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start"
+                    onClick={handleManageSubscription}
+                    disabled={portalLoading}
+                  >
+                    {portalLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Settings className="w-4 h-4 mr-2" />
+                    )}
+                    Gerenciar Assinatura
+                  </Button>
+                )}
                 <Button variant="outline" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   {t("common.logout")}
