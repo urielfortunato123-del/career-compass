@@ -166,11 +166,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, name?: string) => {
     try {
+      // Use production URL for email confirmation redirect
+      const redirectUrl = import.meta.env.PROD 
+        ? 'https://vagajusta.onrender.com'
+        : window.location.origin;
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { name },
+          emailRedirectTo: redirectUrl,
         },
       });
 
