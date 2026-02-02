@@ -10,13 +10,13 @@ import {
 import { Button } from "@/components/ui/button";
 
 const languages = [
-  { code: "pt", name: "Português", flag: "🇧🇷" },
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "it", name: "Italiano", flag: "🇮🇹" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "ru", name: "Русский", flag: "🇷🇺" },
+  { code: "pt", name: "Português", countryCode: "br" },
+  { code: "en", name: "English", countryCode: "us" },
+  { code: "es", name: "Español", countryCode: "es" },
+  { code: "fr", name: "Français", countryCode: "fr" },
+  { code: "it", name: "Italiano", countryCode: "it" },
+  { code: "de", name: "Deutsch", countryCode: "de" },
+  { code: "ru", name: "Русский", countryCode: "ru" },
 ];
 
 export function LanguageSwitcher() {
@@ -35,7 +35,11 @@ export function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
           <Globe className="w-4 h-4" />
-          <span className="hidden sm:inline">{currentLanguage.flag}</span>
+          <img 
+            src={`https://flagcdn.com/w20/${currentLanguage.countryCode}.png`} 
+            alt={currentLanguage.name}
+            className="w-5 h-auto rounded-sm hidden sm:inline"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -45,7 +49,14 @@ export function LanguageSwitcher() {
             onClick={() => changeLanguage(language.code)}
             className="flex items-center justify-between cursor-pointer"
           >
-            <span>{language.flag} {language.name}</span>
+            <div className="flex items-center gap-3">
+              <img 
+                src={`https://flagcdn.com/w20/${language.countryCode}.png`} 
+                alt={language.name}
+                className="w-5 h-auto rounded-sm"
+              />
+              <span>{language.name}</span>
+            </div>
             {i18n.language === language.code && (
               <Check className="w-4 h-4 text-primary" />
             )}
