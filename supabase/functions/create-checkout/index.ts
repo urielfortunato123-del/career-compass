@@ -12,8 +12,8 @@ const logStep = (step: string, details?: Record<string, unknown>) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// VagaJusta Pro price ID
-const PRO_PRICE_ID = "price_1SwTROFEGL5ZN5xxDadoc4qc";
+// VagaJusta Pro price ID - R$ 49,90/month
+const PRO_PRICE_ID = "price_1SwTlFFEGL5ZN5xxeIIcCy8R";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
