@@ -1,10 +1,18 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, X, Sparkles } from "lucide-react";
+import { Check, X, Sparkles, Loader2 } from "lucide-react";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 export function Pricing() {
   const { t } = useTranslation();
+  const { user, subscription } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const plans = [
     {
@@ -125,8 +133,52 @@ export function Pricing() {
                   variant={plan.variant} 
                   size="lg" 
                   className={`w-full ${plan.popular ? 'shadow-glow animate-glow' : ''}`}
+                  disabled={loading || (plan.popular && subscription.subscribed)}
+                  onClick={async () => {
+                    if (!plan.popular) {
+                      // Free plan - just go to app
+                      navigate(user ? '/app' : '/auth');
+                      return;
+                    }
+                    
+                    if (!user) {
+                      navigate('/auth');
+                      return;
+                    }
+                    
+                    if (subscription.subscribed) {
+                      toast({
+                        title: "Você já é Pro!",
+                        description: "Você já possui uma assinatura ativa.",
+                      });
+                      return;
+                    }
+                    
+                    setLoading(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('create-checkout');
+                      
+                      if (error) throw error;
+                      
+                      if (data?.url) {
+                        window.open(data.url, '_blank');
+                      }
+                    } catch (error) {
+                      console.error('Error creating checkout:', error);
+                      toast({
+                        title: "Erro",
+                        description: "Erro ao iniciar checkout. Tente novamente.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
                 >
-                  {plan.cta}
+                  {loading && plan.popular ? (
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  ) : null}
+                  {subscription.subscribed && plan.popular ? "Seu Plano Atual" : plan.cta}
                 </Button>
               </div>
             </ScrollAnimation>
