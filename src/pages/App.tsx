@@ -7,8 +7,10 @@ import { CompatibilityScore } from "@/components/app/CompatibilityScore";
 import { ResumeComparison } from "@/components/app/ResumeComparison";
 import { ActionPlan } from "@/components/app/ActionPlan";
 import { CareerTransitionToggle } from "@/components/app/CareerTransitionToggle";
+import { ResumeDownload } from "@/components/app/ResumeDownload";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, FileText, Search, BarChart3, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText, Search, BarChart3 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Step = "upload" | "job" | "results";
 
@@ -19,9 +21,11 @@ const steps = [
 ];
 
 export default function AppPage() {
+  const { user, profile } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("upload");
   const [resumeUploaded, setResumeUploaded] = useState(false);
   const [jobAnalyzed, setJobAnalyzed] = useState(false);
+  const [generatedResume, setGeneratedResume] = useState<string>("");
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
 
@@ -179,10 +183,10 @@ export default function AppPage() {
                     <ArrowLeft className="w-5 h-5" />
                     Voltar
                   </Button>
-                  <Button variant="hero" size="lg">
-                    <Calendar className="w-5 h-5" />
-                    Salvar e Exportar
-                  </Button>
+                  <ResumeDownload 
+                    resumeContent={generatedResume || "# Currículo ATS\n\nGere seu currículo otimizado para visualizar aqui."} 
+                    fileName={`curriculo-${user?.email?.split("@")[0] || "ats"}`}
+                  />
                 </div>
               </div>
             )}

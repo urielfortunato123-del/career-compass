@@ -47,7 +47,10 @@ export function Header() {
           {loading ? null : user ? (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/app">Minha Conta</Link>
+                <Link to="/history">Histórico</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/app">Nova Análise</Link>
               </Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4" />
@@ -60,7 +63,7 @@ export function Header() {
                 <Link to="/auth">Entrar</Link>
               </Button>
               <Button variant="default" size="sm" asChild>
-                <Link to="/app">Começar Grátis</Link>
+                <Link to="/auth">Começar Grátis</Link>
               </Button>
             </>
           )}
