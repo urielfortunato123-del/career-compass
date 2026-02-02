@@ -23,9 +23,15 @@ const steps = [
 export default function AppPage() {
   const { user, profile } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("upload");
-  const [resumeUploaded, setResumeUploaded] = useState(false);
+  const [resumeData, setResumeData] = useState<{
+    id: string;
+    text: string;
+    structuredData?: Record<string, unknown>;
+  } | null>(null);
   const [jobAnalyzed, setJobAnalyzed] = useState(false);
   const [generatedResume, setGeneratedResume] = useState<string>("");
+
+  const resumeUploaded = !!resumeData;
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
 
@@ -112,9 +118,52 @@ export default function AppPage() {
                   </p>
                 </div>
 
-                <ResumeUpload onUpload={() => setResumeUploaded(true)} />
+                <ResumeUpload 
+                  onUpload={(data) => {
+                    setResumeData({
+                      id: data.id,
+                      text: data.text,
+                      structuredData: data.structuredData,
+                    });
+                  }} 
+                />
                 
                 <CareerTransitionToggle />
+
+                {resumeData?.structuredData && (
+                  <div className="bg-card border border-border rounded-xl p-4">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" />
+                      Dados extraídos do currículo
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      {resumeData.structuredData.name && (
+                        <div>
+                          <p className="text-muted-foreground">Nome</p>
+                          <p className="font-medium">{String(resumeData.structuredData.name)}</p>
+                        </div>
+                      )}
+                      {resumeData.structuredData.current_role && (
+                        <div>
+                          <p className="text-muted-foreground">Cargo atual</p>
+                          <p className="font-medium">{String(resumeData.structuredData.current_role)}</p>
+                        </div>
+                      )}
+                      {Array.isArray(resumeData.structuredData.experiences) && (
+                        <div>
+                          <p className="text-muted-foreground">Experiências</p>
+                          <p className="font-medium">{resumeData.structuredData.experiences.length}</p>
+                        </div>
+                      )}
+                      {Array.isArray(resumeData.structuredData.technical_skills) && (
+                        <div>
+                          <p className="text-muted-foreground">Skills</p>
+                          <p className="font-medium">{resumeData.structuredData.technical_skills.length}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex justify-end">
                   <Button 
