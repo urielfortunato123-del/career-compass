@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Sparkles } from "lucide-react";
 
 const plans = [
   {
@@ -45,64 +45,79 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="planos" className="py-24 bg-background">
-      <div className="container">
+    <section id="planos" className="relative py-28 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
+      
+      {/* Decorative glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] gradient-glow opacity-40" />
+
+      <div className="container relative z-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-medium mb-6">
             Planos
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
             Escolha o plano{" "}
-            <span className="text-gradient">certo para você</span>
+            <span className="text-gradient-accent">certo para você</span>
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             Comece grátis. Evolua quando precisar.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {plans.map((plan) => (
             <div 
               key={plan.name}
-              className={`relative rounded-2xl p-8 transition-all duration-300 ${
+              className={`relative glass-card rounded-3xl p-10 transition-all duration-500 ${
                 plan.popular 
-                  ? 'bg-card border-2 border-primary shadow-xl shadow-primary/10' 
-                  : 'bg-card border border-border'
+                  ? 'border-primary/50 shadow-glow hover:shadow-xl' 
+                  : 'hover:border-primary/30 hover:shadow-glow'
               }`}
             >
               {plan.popular && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full gradient-primary text-sm font-medium text-primary-foreground">
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-sm font-semibold text-primary-foreground shadow-glow">
+                  <Sparkles className="w-4 h-4" />
                   Mais Popular
                 </span>
               )}
 
-              <div className="text-center mb-8">
-                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                <div className="flex items-baseline justify-center gap-1 mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold mb-3">{plan.name}</h3>
+                <div className="flex items-baseline justify-center gap-1 mb-3">
+                  <span className="text-5xl font-bold text-gradient">{plan.price}</span>
+                  <span className="text-muted-foreground text-lg">{plan.period}</span>
                 </div>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <p className="text-muted-foreground">{plan.description}</p>
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-4 mb-10">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-3">
                     {feature.included ? (
-                      <Check className="w-5 h-5 text-success flex-shrink-0" />
+                      <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-4 h-4 text-success" />
+                      </div>
                     ) : (
-                      <X className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
+                      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <X className="w-4 h-4 text-muted-foreground/50" />
+                      </div>
                     )}
-                    <span className={`text-sm ${!feature.included ? 'text-muted-foreground/50' : ''}`}>
+                    <span className={`${!feature.included ? 'text-muted-foreground/50' : 'text-foreground'}`}>
                       {feature.text}
                     </span>
                   </li>
                 ))}
               </ul>
 
-              <Button variant={plan.variant} size="lg" className="w-full">
+              <Button 
+                variant={plan.variant} 
+                size="lg" 
+                className={`w-full ${plan.popular ? 'shadow-glow animate-glow' : ''}`}
+              >
                 {plan.cta}
               </Button>
             </div>
@@ -110,15 +125,16 @@ export function Pricing() {
         </div>
 
         {/* Future B2B teaser */}
-        <div className="mt-16 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            🏢 Empresas e instituições de ensino
-          </p>
-          <p className="text-sm">
-            <a href="#" className="text-primary hover:underline font-medium">
-              Conheça nosso plano educacional e corporativo →
-            </a>
-          </p>
+        <div className="mt-20 text-center">
+          <div className="inline-flex items-center gap-3 glass-card px-6 py-4 rounded-2xl">
+            <span className="text-2xl">🏢</span>
+            <div className="text-left">
+              <p className="text-sm text-muted-foreground">Empresas e instituições de ensino</p>
+              <a href="#" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                Conheça nosso plano educacional e corporativo →
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

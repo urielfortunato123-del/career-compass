@@ -15,25 +15,25 @@ export function Header() {
     navigate("/");
   };
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-lg">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="fixed top-0 z-50 w-full border-b border-border/30 bg-background/60 backdrop-blur-xl">
+      <div className="container flex h-18 items-center justify-between py-4">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
-          <img src={logo} alt="VagaJusta" className="h-8 w-auto" />
+          <img src={logo} alt="VagaJusta" className="h-9 w-auto" />
         </a>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Como Funciona
           </a>
-          <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Recursos
           </a>
-          <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Planos
           </a>
-          <a href="#sobre" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#sobre" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             Sobre
           </a>
         </nav>
@@ -42,23 +42,23 @@ export function Header() {
         <div className="hidden md:flex items-center gap-3">
           {loading ? null : user ? (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/history">Histórico</Link>
               </Button>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/app">Nova Análise</Link>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <Button variant="outline" size="sm" className="border-muted-foreground/30" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4" />
                 Sair
               </Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/auth">Entrar</Link>
               </Button>
-              <Button variant="default" size="sm" asChild>
+              <Button variant="default" size="sm" className="shadow-glow" asChild>
                 <Link to="/auth">Começar Grátis</Link>
               </Button>
             </>
@@ -76,27 +76,44 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
-          <nav className="container py-4 flex flex-col gap-4">
-            <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+        <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-xl">
+          <nav className="container py-6 flex flex-col gap-4">
+            <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Como Funciona
             </a>
-            <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Recursos
             </a>
-            <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Planos
             </a>
-            <a href="#sobre" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#sobre" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Sobre
             </a>
-            <hr className="border-border" />
-            <Button variant="ghost" className="justify-start">
-              Entrar
-            </Button>
-            <Button variant="default">
-              Começar Grátis
-            </Button>
+            <hr className="border-border/50" />
+            {user ? (
+              <>
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link to="/history">Histórico</Link>
+                </Button>
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link to="/app">Nova Análise</Link>
+                </Button>
+                <Button variant="outline" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link to="/auth">Entrar</Link>
+                </Button>
+                <Button variant="default" className="shadow-glow">
+                  <Link to="/auth">Começar Grátis</Link>
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       )}
