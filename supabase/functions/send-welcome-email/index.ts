@@ -87,7 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
 
               <!-- CTA Button -->
               <div style="text-align: center;">
-                <a href="https://vagajusta.onrender.com/app" 
+                <a href="https://vagajusta.onrender.com" 
                    style="display: inline-block; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                   Começar Agora →
                 </a>
