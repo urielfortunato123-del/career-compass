@@ -1,0 +1,96 @@
+{
+  "common": {
+    "home": "Início",
+    "login": "Entrar",
+    "signup": "Começar Grátis",
+    "logout": "Sair",
+    "history": "Histórico",
+    "newAnalysis": "Nova Análise",
+    "next": "Próximo",
+    "back": "Voltar",
+    "download": "Download",
+    "view": "Visualizar"
+  },
+  "nav": {
+    "howItWorks": "Como Funciona",
+    "features": "Recursos",
+    "plans": "Planos",
+    "about": "Sobre"
+  },
+  "hero": {
+    "badge": "IA de Decisão de Carreira",
+    "title": "Seu currículo merece",
+    "titleHighlight": "uma vaga justa",
+    "description": "Análise inteligente de currículo + matching com vagas reais. Saiba seu score de empregabilidade e receba um plano de ação personalizado.",
+    "cta": "Começar Grátis",
+    "secondary": "Ver Como Funciona"
+  },
+  "app": {
+    "step1": "Currículo",
+    "step2": "Vaga",
+    "step3": "Resultados",
+    "uploadTitle": "Envie seu currículo",
+    "uploadDescription": "Faça upload do seu PDF para começar a análise inteligente",
+    "dragDrop": "Arraste seu currículo aqui",
+    "selectFile": "ou clique para selecionar (PDF)",
+    "analyzeTitle": "Analise a vaga",
+    "analyzeDescription": "Cole o texto da vaga ou informe o cargo desejado",
+    "pasteJob": "Colar texto da vaga",
+    "enterTitle": "Informar cargo + área",
+    "resultsTitle": "Seus Resultados",
+    "resultsDescription": "Score, currículo otimizado e plano de ação personalizado",
+    "nextStep": "Próximo: Informar Vaga",
+    "viewResults": "Ver Resultados",
+    "analyzeJob": "Analisar Vaga"
+  },
+  "score": {
+    "title": "Score de Empregabilidade",
+    "of": "de",
+    "pointsPossible": "pontos possíveis",
+    "breakdown": "Detalhamento do Score",
+    "improvements": "O que aumenta seu score"
+  },
+  "resume": {
+    "original": "Currículo Original",
+    "optimized": "Currículo ATS",
+    "comparison": "Comparação",
+    "base": "ATS Base",
+    "targeted": "Direcionado",
+    "keywords": "Palavras-chave ATS inseridas"
+  },
+  "plan": {
+    "title": "Plano de Ação",
+    "days14": "14 dias",
+    "days30": "30 dias",
+    "days90": "90 dias",
+    "progress": "Progresso do plano",
+    "tasks": "tarefas",
+    "export": "Exportar para agenda"
+  },
+  "footer": {
+    "product": "Produto",
+    "support": "Suporte",
+    "helpCenter": "Central de Ajuda",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Uso",
+    "tagline": "IA de decisão de carreira e currículo inteligente. Estratégia real para quem quer trabalhar melhor.",
+    "rights": "Todos os direitos reservados.",
+    "madeWith": "Feito com 💚 para profissionais de todo o mundo"
+  },
+  "careerTransition": {
+    "title": "Modo Transição de Carreira",
+    "description": "Ative se você quer mudar de área",
+    "targetArea": "Para qual área você quer migrar?",
+    "current": "Atual",
+    "whatChanges": "O que muda no seu currículo:"
+  },
+  "languages": {
+    "pt": "Português",
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch",
+    "ru": "Русский"
+  }
+}

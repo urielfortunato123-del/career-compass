@@ -1,0 +1,96 @@
+{
+  "common": {
+    "home": "Startseite",
+    "login": "Anmelden",
+    "signup": "Kostenlos Starten",
+    "logout": "Abmelden",
+    "history": "Verlauf",
+    "newAnalysis": "Neue Analyse",
+    "next": "Weiter",
+    "back": "Zurück",
+    "download": "Herunterladen",
+    "view": "Ansehen"
+  },
+  "nav": {
+    "howItWorks": "So Funktioniert's",
+    "features": "Funktionen",
+    "plans": "Preise",
+    "about": "Über Uns"
+  },
+  "hero": {
+    "badge": "KI-Karriereentscheidungsplattform",
+    "title": "Ihr Lebenslauf verdient",
+    "titleHighlight": "den richtigen Job",
+    "description": "Intelligente Lebenslaufanalyse + Matching mit echten Jobs. Erfahren Sie Ihren Beschäftigbarkeitsscore und erhalten Sie einen personalisierten Aktionsplan.",
+    "cta": "Kostenlos Starten",
+    "secondary": "So Funktioniert's"
+  },
+  "app": {
+    "step1": "Lebenslauf",
+    "step2": "Stelle",
+    "step3": "Ergebnisse",
+    "uploadTitle": "Laden Sie Ihren Lebenslauf hoch",
+    "uploadDescription": "Laden Sie Ihr PDF hoch, um die intelligente Analyse zu starten",
+    "dragDrop": "Ziehen Sie Ihren Lebenslauf hierher",
+    "selectFile": "oder klicken Sie zum Auswählen (PDF)",
+    "analyzeTitle": "Analysieren Sie die Stelle",
+    "analyzeDescription": "Fügen Sie die Stellenbeschreibung ein oder geben Sie die gewünschte Position ein",
+    "pasteJob": "Stellenbeschreibung einfügen",
+    "enterTitle": "Position + Bereich eingeben",
+    "resultsTitle": "Ihre Ergebnisse",
+    "resultsDescription": "Score, optimierter Lebenslauf und personalisierter Aktionsplan",
+    "nextStep": "Weiter: Stelle Eingeben",
+    "viewResults": "Ergebnisse Ansehen",
+    "analyzeJob": "Stelle Analysieren"
+  },
+  "score": {
+    "title": "Beschäftigbarkeitsscore",
+    "of": "von",
+    "pointsPossible": "mögliche Punkte",
+    "breakdown": "Score-Aufschlüsselung",
+    "improvements": "Was Ihren Score erhöht"
+  },
+  "resume": {
+    "original": "Original-Lebenslauf",
+    "optimized": "ATS-Lebenslauf",
+    "comparison": "Vergleich",
+    "base": "ATS Basis",
+    "targeted": "Zielgerichtet",
+    "keywords": "ATS-Schlüsselwörter eingefügt"
+  },
+  "plan": {
+    "title": "Aktionsplan",
+    "days14": "14 Tage",
+    "days30": "30 Tage",
+    "days90": "90 Tage",
+    "progress": "Planfortschritt",
+    "tasks": "Aufgaben",
+    "export": "In Kalender exportieren"
+  },
+  "footer": {
+    "product": "Produkt",
+    "support": "Support",
+    "helpCenter": "Hilfezentrum",
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen",
+    "tagline": "KI-gestützte Karriereentscheidungs- und intelligente Lebenslaufplattform. Echte Strategie für alle, die besser arbeiten wollen.",
+    "rights": "Alle Rechte vorbehalten.",
+    "madeWith": "Mit 💚 gemacht für Fachleute weltweit"
+  },
+  "careerTransition": {
+    "title": "Karrierewechsel-Modus",
+    "description": "Aktivieren, wenn Sie das Feld wechseln möchten",
+    "targetArea": "In welches Feld möchten Sie wechseln?",
+    "current": "Aktuell",
+    "whatChanges": "Was sich in Ihrem Lebenslauf ändert:"
+  },
+  "languages": {
+    "pt": "Português",
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch",
+    "ru": "Русский"
+  }
+}

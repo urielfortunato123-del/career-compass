@@ -2,13 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import logo from "@/assets/logo.png";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -25,53 +28,57 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Como Funciona
+            {t("nav.howItWorks")}
           </a>
           <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Recursos
+            {t("nav.features")}
           </a>
           <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Planos
+            {t("nav.plans")}
           </a>
           <a href="#sobre" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Sobre
+            {t("nav.about")}
           </a>
         </nav>
 
         {/* CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
           {loading ? null : user ? (
             <>
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link to="/history">Histórico</Link>
+                <Link to="/history">{t("common.history")}</Link>
               </Button>
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link to="/app">Nova Análise</Link>
+                <Link to="/app">{t("common.newAnalysis")}</Link>
               </Button>
               <Button variant="outline" size="sm" className="border-muted-foreground/30" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4" />
-                Sair
+                {t("common.logout")}
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link to="/auth">Entrar</Link>
+                <Link to="/auth">{t("common.login")}</Link>
               </Button>
               <Button variant="default" size="sm" className="shadow-glow" asChild>
-                <Link to="/auth">Começar Grátis</Link>
+                <Link to="/auth">{t("common.signup")}</Link>
               </Button>
             </>
           )}
         </div>
 
         {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <button 
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -79,38 +86,38 @@ export function Header() {
         <div className="md:hidden border-t border-border/30 bg-background/95 backdrop-blur-xl">
           <nav className="container py-6 flex flex-col gap-4">
             <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Como Funciona
+              {t("nav.howItWorks")}
             </a>
             <a href="#recursos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Recursos
+              {t("nav.features")}
             </a>
             <a href="#planos" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Planos
+              {t("nav.plans")}
             </a>
             <a href="#sobre" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Sobre
+              {t("nav.about")}
             </a>
             <hr className="border-border/50" />
             {user ? (
               <>
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link to="/history">Histórico</Link>
+                  <Link to="/history">{t("common.history")}</Link>
                 </Button>
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link to="/app">Nova Análise</Link>
+                  <Link to="/app">{t("common.newAnalysis")}</Link>
                 </Button>
                 <Button variant="outline" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sair
+                  {t("common.logout")}
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="ghost" className="justify-start" asChild>
-                  <Link to="/auth">Entrar</Link>
+                  <Link to="/auth">{t("common.login")}</Link>
                 </Button>
                 <Button variant="default" className="shadow-glow">
-                  <Link to="/auth">Começar Grátis</Link>
+                  <Link to="/auth">{t("common.signup")}</Link>
                 </Button>
               </>
             )}

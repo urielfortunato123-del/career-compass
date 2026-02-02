@@ -1,0 +1,96 @@
+{
+  "common": {
+    "home": "Home",
+    "login": "Accedi",
+    "signup": "Inizia Gratis",
+    "logout": "Esci",
+    "history": "Cronologia",
+    "newAnalysis": "Nuova Analisi",
+    "next": "Avanti",
+    "back": "Indietro",
+    "download": "Scarica",
+    "view": "Visualizza"
+  },
+  "nav": {
+    "howItWorks": "Come Funziona",
+    "features": "Caratteristiche",
+    "plans": "Prezzi",
+    "about": "Chi Siamo"
+  },
+  "hero": {
+    "badge": "Piattaforma di Decisione di Carriera con IA",
+    "title": "Il tuo curriculum merita",
+    "titleHighlight": "il lavoro giusto",
+    "description": "Analisi intelligente del curriculum + matching con lavori reali. Scopri il tuo punteggio di occupabilità e ottieni un piano d'azione personalizzato.",
+    "cta": "Inizia Gratis",
+    "secondary": "Scopri Come Funziona"
+  },
+  "app": {
+    "step1": "Curriculum",
+    "step2": "Lavoro",
+    "step3": "Risultati",
+    "uploadTitle": "Carica il tuo curriculum",
+    "uploadDescription": "Carica il tuo PDF per iniziare l'analisi intelligente",
+    "dragDrop": "Trascina il tuo curriculum qui",
+    "selectFile": "o clicca per selezionare (PDF)",
+    "analyzeTitle": "Analizza il lavoro",
+    "analyzeDescription": "Incolla la descrizione del lavoro o inserisci la posizione desiderata",
+    "pasteJob": "Incolla la descrizione del lavoro",
+    "enterTitle": "Inserisci posizione + area",
+    "resultsTitle": "I Tuoi Risultati",
+    "resultsDescription": "Punteggio, curriculum ottimizzato e piano d'azione personalizzato",
+    "nextStep": "Avanti: Inserisci Lavoro",
+    "viewResults": "Vedi Risultati",
+    "analyzeJob": "Analizza Lavoro"
+  },
+  "score": {
+    "title": "Punteggio di Occupabilità",
+    "of": "di",
+    "pointsPossible": "punti possibili",
+    "breakdown": "Dettaglio del Punteggio",
+    "improvements": "Cosa aumenta il tuo punteggio"
+  },
+  "resume": {
+    "original": "Curriculum Originale",
+    "optimized": "Curriculum ATS",
+    "comparison": "Confronto",
+    "base": "ATS Base",
+    "targeted": "Mirato",
+    "keywords": "Parole chiave ATS inserite"
+  },
+  "plan": {
+    "title": "Piano d'Azione",
+    "days14": "14 giorni",
+    "days30": "30 giorni",
+    "days90": "90 giorni",
+    "progress": "Progresso del piano",
+    "tasks": "attività",
+    "export": "Esporta nel calendario"
+  },
+  "footer": {
+    "product": "Prodotto",
+    "support": "Supporto",
+    "helpCenter": "Centro Assistenza",
+    "privacy": "Privacy Policy",
+    "terms": "Termini di Servizio",
+    "tagline": "Piattaforma di decisione di carriera e curriculum intelligente con IA. Strategia reale per chi vuole lavorare meglio.",
+    "rights": "Tutti i diritti riservati.",
+    "madeWith": "Fatto con 💚 per i professionisti di tutto il mondo"
+  },
+  "careerTransition": {
+    "title": "Modalità Transizione di Carriera",
+    "description": "Attiva se vuoi cambiare settore",
+    "targetArea": "In quale settore vuoi fare la transizione?",
+    "current": "Attuale",
+    "whatChanges": "Cosa cambia nel tuo curriculum:"
+  },
+  "languages": {
+    "pt": "Português",
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch",
+    "ru": "Русский"
+  }
+}
