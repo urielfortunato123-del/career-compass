@@ -45,10 +45,7 @@ export function LanguageSwitcher() {
             onClick={() => changeLanguage(language.code)}
             className="flex items-center justify-between cursor-pointer"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-lg">{language.flag}</span>
-              <span>{language.name}</span>
-            </div>
+            <span>{language.flag} {language.name}</span>
             {i18n.language === language.code && (
               <Check className="w-4 h-4 text-primary" />
             )}
