@@ -29,6 +29,7 @@ export default function AppPage() {
     text: string;
     structuredData?: Record<string, unknown>;
   } | null>(null);
+  const [editedStructuredData, setEditedStructuredData] = useState<Record<string, unknown> | null>(null);
   const [jobAnalyzed, setJobAnalyzed] = useState(false);
   const [generatedResume, setGeneratedResume] = useState<string>("");
 
@@ -152,7 +153,11 @@ export default function AppPage() {
 
                 {resumeData?.structuredData && (
                   <div className="glass-card rounded-2xl p-6 border border-primary/20">
-                    <ResumeDataPreview data={resumeData.structuredData as Record<string, unknown>} />
+                    <ResumeDataPreview 
+                      data={(editedStructuredData || resumeData.structuredData) as Record<string, unknown>} 
+                      onDataChange={(newData) => setEditedStructuredData(newData as Record<string, unknown>)}
+                      editable={true}
+                    />
                   </div>
                 )}
 
