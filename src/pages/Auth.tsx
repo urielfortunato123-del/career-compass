@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { Header } from "@/components/landing/Header";
-import { Footer } from "@/components/landing/Footer";
-import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 type Mode = "login" | "register";
 
@@ -43,26 +42,43 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 nebula-bg opacity-40" />
+      <div className="absolute inset-0 gradient-hero" />
       
-      <main className="flex-1 flex items-center justify-center py-12">
+      {/* Glow orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px] animate-pulse-soft" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-[80px] animate-pulse-soft" style={{ animationDelay: '1s' }} />
+      
+      <main className="flex-1 flex items-center justify-center py-12 relative z-10">
         <div className="w-full max-w-md px-4">
-          <div className="bg-card rounded-2xl border border-border p-8 shadow-lg">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <Link to="/" className="inline-block">
+              <img src={logo} alt="VagaJusta" className="h-12 w-auto mx-auto" />
+            </Link>
+          </div>
+          
+          <div className="glass-card rounded-3xl border border-border/50 p-10 shadow-xl">
             {/* Header */}
             <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                <Sparkles className="w-4 h-4" />
+                {mode === "login" ? "Bem-vindo de volta" : "Comece agora"}
+              </div>
               <h1 className="text-2xl font-bold mb-2">
-                {mode === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
+                {mode === "login" ? "Entre na sua conta" : "Crie sua conta"}
               </h1>
               <p className="text-muted-foreground">
                 {mode === "login" 
-                  ? "Entre para acessar suas análises" 
+                  ? "Acesse suas análises e currículos" 
                   : "Comece a otimizar seu currículo hoje"}
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {mode === "register" && (
                 <div>
                   <Label htmlFor="name">Nome</Label>
@@ -74,7 +90,7 @@ export default function AuthPage() {
                       placeholder="Seu nome"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="pl-10"
+                    className="pl-10 bg-background/50 border-border/50 focus:border-primary"
                     />
                   </div>
                 </div>
@@ -91,7 +107,7 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="pl-10"
+                    className="pl-10 bg-background/50 border-border/50 focus:border-primary"
                   />
                 </div>
               </div>
@@ -108,7 +124,7 @@ export default function AuthPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="pl-10"
+                    className="pl-10 bg-background/50 border-border/50 focus:border-primary"
                   />
                 </div>
               </div>
@@ -123,7 +139,7 @@ export default function AuthPage() {
                 type="submit" 
                 variant="hero" 
                 size="lg" 
-                className="w-full"
+                className="w-full shadow-glow"
                 disabled={loading}
               >
                 {loading ? (
@@ -138,7 +154,7 @@ export default function AuthPage() {
             </form>
 
             {/* Toggle Mode */}
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <p className="text-sm text-muted-foreground">
                 {mode === "login" ? "Não tem uma conta?" : "Já tem uma conta?"}
                 <button
@@ -153,14 +169,19 @@ export default function AuthPage() {
           </div>
 
           {/* Ethics reminder */}
-          <p className="text-xs text-muted-foreground text-center mt-6 max-w-sm mx-auto">
+          <p className="text-xs text-muted-foreground text-center mt-8 max-w-sm mx-auto">
             O VagaJusta não inventa experiências. Ele organiza, destaca e orienta 
             com base no que você já construiu.
           </p>
+          
+          {/* Back to home */}
+          <div className="text-center mt-6">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              ← Voltar para a página inicial
+            </Link>
+          </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
