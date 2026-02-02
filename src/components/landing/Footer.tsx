@@ -42,9 +42,9 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-6 text-foreground">Suporte</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Central de Ajuda</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Política de Privacidade</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Termos de Uso</a></li>
+              <li><a href="/ajuda" className="text-muted-foreground hover:text-primary transition-colors">Central de Ajuda</a></li>
+              <li><a href="/privacidade" className="text-muted-foreground hover:text-primary transition-colors">Política de Privacidade</a></li>
+              <li><a href="/termos" className="text-muted-foreground hover:text-primary transition-colors">Termos de Uso</a></li>
             </ul>
           </div>
         </div>
