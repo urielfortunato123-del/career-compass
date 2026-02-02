@@ -75,7 +75,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${origin}/app?checkout=success`,
+      success_url: `${origin}/checkout/success?checkout=success`,
       cancel_url: `${origin}/#planos`,
       locale: "pt-BR",
       allow_promotion_codes: true,
