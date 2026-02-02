@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { CheckCircle, Sparkles, Loader2, Rocket } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
 import Confetti from "@/components/ui/confetti";
 
 export default function CheckoutSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { checkSubscription, subscription } = useAuth();
+  const { checkSubscription, subscription, user, profile } = useAuth();
   const { t } = useTranslation();
   const [checking, setChecking] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+  const emailSentRef = useRef(false);
 
   useEffect(() => {
     const verifySubscription = async () => {
       setChecking(true);
-      // Give Stripe a moment to process the webhook
+      // Give Stripe a moment to process
       await new Promise(resolve => setTimeout(resolve, 2000));
       await checkSubscription();
       setChecking(false);
@@ -31,6 +33,28 @@ export default function CheckoutSuccess() {
       setShowConfetti(true);
     }
   }, [searchParams, checkSubscription]);
+
+  // Send welcome email once subscription is confirmed
+  useEffect(() => {
+    const sendWelcomeEmail = async () => {
+      if (subscription.subscribed && user?.email && !emailSentRef.current) {
+        emailSentRef.current = true;
+        try {
+          await supabase.functions.invoke('send-welcome-email', {
+            body: {
+              email: user.email,
+              name: profile?.name || user.email.split('@')[0],
+            },
+          });
+          console.log('Welcome email sent successfully');
+        } catch (error) {
+          console.error('Error sending welcome email:', error);
+        }
+      }
+    };
+
+    sendWelcomeEmail();
+  }, [subscription.subscribed, user, profile]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
