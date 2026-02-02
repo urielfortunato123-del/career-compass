@@ -1,0 +1,96 @@
+{
+  "common": {
+    "home": "Inicio",
+    "login": "Iniciar Sesión",
+    "signup": "Comenzar Gratis",
+    "logout": "Cerrar Sesión",
+    "history": "Historial",
+    "newAnalysis": "Nuevo Análisis",
+    "next": "Siguiente",
+    "back": "Volver",
+    "download": "Descargar",
+    "view": "Ver"
+  },
+  "nav": {
+    "howItWorks": "Cómo Funciona",
+    "features": "Características",
+    "plans": "Precios",
+    "about": "Acerca de"
+  },
+  "hero": {
+    "badge": "Plataforma de Decisión de Carrera con IA",
+    "title": "Tu currículum merece",
+    "titleHighlight": "el trabajo correcto",
+    "description": "Análisis inteligente de currículum + matching con empleos reales. Conoce tu puntuación de empleabilidad y obtén un plan de acción personalizado.",
+    "cta": "Comenzar Gratis",
+    "secondary": "Ver Cómo Funciona"
+  },
+  "app": {
+    "step1": "Currículum",
+    "step2": "Empleo",
+    "step3": "Resultados",
+    "uploadTitle": "Sube tu currículum",
+    "uploadDescription": "Sube tu PDF para comenzar el análisis inteligente",
+    "dragDrop": "Arrastra tu currículum aquí",
+    "selectFile": "o haz clic para seleccionar (PDF)",
+    "analyzeTitle": "Analiza el empleo",
+    "analyzeDescription": "Pega la descripción del empleo o ingresa el puesto deseado",
+    "pasteJob": "Pegar descripción del empleo",
+    "enterTitle": "Ingresar puesto + área",
+    "resultsTitle": "Tus Resultados",
+    "resultsDescription": "Puntuación, currículum optimizado y plan de acción personalizado",
+    "nextStep": "Siguiente: Ingresar Empleo",
+    "viewResults": "Ver Resultados",
+    "analyzeJob": "Analizar Empleo"
+  },
+  "score": {
+    "title": "Puntuación de Empleabilidad",
+    "of": "de",
+    "pointsPossible": "puntos posibles",
+    "breakdown": "Desglose de Puntuación",
+    "improvements": "Qué aumenta tu puntuación"
+  },
+  "resume": {
+    "original": "Currículum Original",
+    "optimized": "Currículum ATS",
+    "comparison": "Comparación",
+    "base": "ATS Base",
+    "targeted": "Dirigido",
+    "keywords": "Palabras clave ATS insertadas"
+  },
+  "plan": {
+    "title": "Plan de Acción",
+    "days14": "14 días",
+    "days30": "30 días",
+    "days90": "90 días",
+    "progress": "Progreso del plan",
+    "tasks": "tareas",
+    "export": "Exportar a calendario"
+  },
+  "footer": {
+    "product": "Producto",
+    "support": "Soporte",
+    "helpCenter": "Centro de Ayuda",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "tagline": "Plataforma de decisión de carrera y currículum inteligente con IA. Estrategia real para quienes quieren trabajar mejor.",
+    "rights": "Todos los derechos reservados.",
+    "madeWith": "Hecho con 💚 para profesionales de todo el mundo"
+  },
+  "careerTransition": {
+    "title": "Modo Transición de Carrera",
+    "description": "Activa si quieres cambiar de campo",
+    "targetArea": "¿A qué campo quieres hacer la transición?",
+    "current": "Actual",
+    "whatChanges": "Qué cambia en tu currículum:"
+  },
+  "languages": {
+    "pt": "Português",
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch",
+    "ru": "Русский"
+  }
+}

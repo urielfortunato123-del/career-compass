@@ -1,0 +1,96 @@
+{
+  "common": {
+    "home": "Accueil",
+    "login": "Se Connecter",
+    "signup": "Commencer Gratuitement",
+    "logout": "Se Déconnecter",
+    "history": "Historique",
+    "newAnalysis": "Nouvelle Analyse",
+    "next": "Suivant",
+    "back": "Retour",
+    "download": "Télécharger",
+    "view": "Voir"
+  },
+  "nav": {
+    "howItWorks": "Comment ça Marche",
+    "features": "Fonctionnalités",
+    "plans": "Tarifs",
+    "about": "À Propos"
+  },
+  "hero": {
+    "badge": "Plateforme de Décision de Carrière par IA",
+    "title": "Votre CV mérite",
+    "titleHighlight": "le bon emploi",
+    "description": "Analyse intelligente de CV + matching avec des emplois réels. Connaissez votre score d'employabilité et obtenez un plan d'action personnalisé.",
+    "cta": "Commencer Gratuitement",
+    "secondary": "Voir Comment ça Marche"
+  },
+  "app": {
+    "step1": "CV",
+    "step2": "Emploi",
+    "step3": "Résultats",
+    "uploadTitle": "Téléchargez votre CV",
+    "uploadDescription": "Téléchargez votre PDF pour commencer l'analyse intelligente",
+    "dragDrop": "Glissez votre CV ici",
+    "selectFile": "ou cliquez pour sélectionner (PDF)",
+    "analyzeTitle": "Analysez l'emploi",
+    "analyzeDescription": "Collez la description de l'emploi ou entrez le poste souhaité",
+    "pasteJob": "Coller la description de l'emploi",
+    "enterTitle": "Entrer le poste + domaine",
+    "resultsTitle": "Vos Résultats",
+    "resultsDescription": "Score, CV optimisé et plan d'action personnalisé",
+    "nextStep": "Suivant: Entrer l'Emploi",
+    "viewResults": "Voir les Résultats",
+    "analyzeJob": "Analyser l'Emploi"
+  },
+  "score": {
+    "title": "Score d'Employabilité",
+    "of": "sur",
+    "pointsPossible": "points possibles",
+    "breakdown": "Détail du Score",
+    "improvements": "Ce qui augmente votre score"
+  },
+  "resume": {
+    "original": "CV Original",
+    "optimized": "CV ATS",
+    "comparison": "Comparaison",
+    "base": "ATS Base",
+    "targeted": "Ciblé",
+    "keywords": "Mots-clés ATS insérés"
+  },
+  "plan": {
+    "title": "Plan d'Action",
+    "days14": "14 jours",
+    "days30": "30 jours",
+    "days90": "90 jours",
+    "progress": "Progression du plan",
+    "tasks": "tâches",
+    "export": "Exporter vers le calendrier"
+  },
+  "footer": {
+    "product": "Produit",
+    "support": "Support",
+    "helpCenter": "Centre d'Aide",
+    "privacy": "Politique de Confidentialité",
+    "terms": "Conditions d'Utilisation",
+    "tagline": "Plateforme de décision de carrière et CV intelligent par IA. Stratégie réelle pour ceux qui veulent mieux travailler.",
+    "rights": "Tous droits réservés.",
+    "madeWith": "Fait avec 💚 pour les professionnels du monde entier"
+  },
+  "careerTransition": {
+    "title": "Mode Transition de Carrière",
+    "description": "Activez si vous souhaitez changer de domaine",
+    "targetArea": "Vers quel domaine souhaitez-vous faire la transition?",
+    "current": "Actuel",
+    "whatChanges": "Ce qui change dans votre CV:"
+  },
+  "languages": {
+    "pt": "Português",
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch",
+    "ru": "Русский"
+  }
+}

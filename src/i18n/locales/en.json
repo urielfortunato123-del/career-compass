@@ -1,0 +1,96 @@
+{
+  "common": {
+    "home": "Home",
+    "login": "Sign In",
+    "signup": "Get Started Free",
+    "logout": "Sign Out",
+    "history": "History",
+    "newAnalysis": "New Analysis",
+    "next": "Next",
+    "back": "Back",
+    "download": "Download",
+    "view": "View"
+  },
+  "nav": {
+    "howItWorks": "How It Works",
+    "features": "Features",
+    "plans": "Pricing",
+    "about": "About"
+  },
+  "hero": {
+    "badge": "AI Career Decision Platform",
+    "title": "Your resume deserves",
+    "titleHighlight": "the right job",
+    "description": "Smart resume analysis + real job matching. Know your employability score and get a personalized action plan.",
+    "cta": "Get Started Free",
+    "secondary": "See How It Works"
+  },
+  "app": {
+    "step1": "Resume",
+    "step2": "Job",
+    "step3": "Results",
+    "uploadTitle": "Upload your resume",
+    "uploadDescription": "Upload your PDF to start the smart analysis",
+    "dragDrop": "Drag your resume here",
+    "selectFile": "or click to select (PDF)",
+    "analyzeTitle": "Analyze the job",
+    "analyzeDescription": "Paste the job description or enter the desired position",
+    "pasteJob": "Paste job description",
+    "enterTitle": "Enter position + area",
+    "resultsTitle": "Your Results",
+    "resultsDescription": "Score, optimized resume and personalized action plan",
+    "nextStep": "Next: Enter Job",
+    "viewResults": "View Results",
+    "analyzeJob": "Analyze Job"
+  },
+  "score": {
+    "title": "Employability Score",
+    "of": "of",
+    "pointsPossible": "points possible",
+    "breakdown": "Score Breakdown",
+    "improvements": "What increases your score"
+  },
+  "resume": {
+    "original": "Original Resume",
+    "optimized": "ATS Resume",
+    "comparison": "Comparison",
+    "base": "ATS Base",
+    "targeted": "Targeted",
+    "keywords": "ATS keywords inserted"
+  },
+  "plan": {
+    "title": "Action Plan",
+    "days14": "14 days",
+    "days30": "30 days",
+    "days90": "90 days",
+    "progress": "Plan progress",
+    "tasks": "tasks",
+    "export": "Export to calendar"
+  },
+  "footer": {
+    "product": "Product",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "tagline": "AI-powered career decision and smart resume platform. Real strategy for those who want to work better.",
+    "rights": "All rights reserved.",
+    "madeWith": "Made with 💚 for professionals worldwide"
+  },
+  "careerTransition": {
+    "title": "Career Transition Mode",
+    "description": "Enable if you want to change fields",
+    "targetArea": "Which field do you want to transition to?",
+    "current": "Current",
+    "whatChanges": "What changes in your resume:"
+  },
+  "languages": {
+    "pt": "Português",
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "it": "Italiano",
+    "de": "Deutsch",
+    "ru": "Русский"
+  }
+}
