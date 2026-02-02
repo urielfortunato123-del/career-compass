@@ -19,7 +19,7 @@ export function Header() {
       <div className="container flex h-18 items-center justify-between py-4">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
-          <img src={logo} alt="VagaJusta" className="h-9 w-auto" />
+          <img src={logo} alt="VagaJusta" className="h-12 w-auto" />
         </a>
 
         {/* Desktop Navigation */}

@@ -56,7 +56,7 @@ export default function AuthPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-block">
-              <img src={logo} alt="VagaJusta" className="h-12 w-auto mx-auto" />
+              <img src={logo} alt="VagaJusta" className="h-16 w-auto mx-auto" />
             </Link>
           </div>
           
