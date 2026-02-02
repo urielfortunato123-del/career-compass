@@ -13,7 +13,7 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <a href="/" className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="VagaJusta" className="h-10 w-auto" />
+              <img src={logo} alt="VagaJusta" className="h-14 w-auto" />
             </a>
             <p className="text-muted-foreground max-w-sm mb-6 leading-relaxed">
               IA de decisão de carreira e currículo inteligente. 
