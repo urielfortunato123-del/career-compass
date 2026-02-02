@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, X, CheckCircle, AlertCircle, ScanLine, Loader2, Sparkles } from "lucide-react";
+import { Upload, FileText, X, CheckCircle, AlertCircle, ScanLine, Loader2, Sparkles, FileType } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { usePDFParser } from "@/hooks/usePDFParser";
-import { formatFileSize } from "@/lib/pdf-ocr";
+import { formatFileSize, getSupportedFileType } from "@/lib/document-parser";
 
 interface ResumeUploadProps {
   onUpload?: (data: { 
@@ -35,8 +35,9 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
     setIsDragging(false);
 
     const files = e.dataTransfer.files;
-    if (files?.[0]?.type === "application/pdf") {
-      await processFile(files[0]);
+    const droppedFile = files?.[0];
+    if (droppedFile && getSupportedFileType(droppedFile)) {
+      await processFile(droppedFile);
     }
   }, []);
 
@@ -85,7 +86,7 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
         >
           <input
             type="file"
-            accept=".pdf"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={handleFileSelect}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
@@ -102,7 +103,7 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
                 Arraste seu currículo aqui
               </p>
               <p className="text-sm text-muted-foreground">
-                ou clique para selecionar (PDF)
+                ou clique para selecionar (PDF ou Word)
               </p>
             </div>
 
@@ -173,14 +174,18 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-6 mt-6 text-xs text-muted-foreground">
+      <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground flex-wrap">
         <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/30">
           <FileText className="w-3.5 h-3.5 text-primary" />
-          PDFs textuais
+          PDF textual
         </span>
         <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/30">
           <ScanLine className="w-3.5 h-3.5 text-primary" />
-          PDFs escaneados (OCR)
+          PDF escaneado (OCR)
+        </span>
+        <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/30">
+          <FileType className="w-3.5 h-3.5 text-primary" />
+          Word (.docx)
         </span>
       </div>
     </div>
