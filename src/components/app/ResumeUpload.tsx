@@ -6,7 +6,12 @@ import { usePDFParser } from "@/hooks/usePDFParser";
 import { formatFileSize } from "@/lib/pdf-ocr";
 
 interface ResumeUploadProps {
-  onUpload?: (data: { file: File; text: string; structuredData?: Record<string, unknown> }) => void;
+  onUpload?: (data: { 
+    id: string;
+    file: File; 
+    text: string; 
+    structuredData?: Record<string, unknown>;
+  }) => void;
 }
 
 export function ResumeUpload({ onUpload }: ResumeUploadProps) {
@@ -49,6 +54,7 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
     
     if (parsed) {
       onUpload?.({
+        id: parsed.id,
         file: selectedFile,
         text: parsed.text,
         structuredData: parsed.structuredData,
