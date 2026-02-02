@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Crown, Loader2, Settings, User } from "lucide-react";
+import { Menu, X, LogOut, Crown, Loader2, Settings, User, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const { user, signOut, loading, subscription } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -105,6 +107,14 @@ export function Header() {
                   <span className="ml-1">Assinatura</span>
                 </Button>
               )}
+              {isAdmin && (
+                <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80" asChild>
+                  <Link to="/admin">
+                    <Shield className="w-4 h-4 mr-1" />
+                    Admin
+                  </Link>
+                </Button>
+              )}
               <Button variant="outline" size="sm" className="border-muted-foreground/30" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4" />
                 {t("common.logout")}
@@ -184,6 +194,14 @@ export function Header() {
                       <Settings className="w-4 h-4 mr-2" />
                     )}
                     Gerenciar Assinatura
+                  </Button>
+                )}
+                {isAdmin && (
+                  <Button variant="ghost" className="justify-start text-primary" asChild>
+                    <Link to="/admin">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Painel Admin
+                    </Link>
                   </Button>
                 )}
                 <Button variant="outline" onClick={handleSignOut}>
