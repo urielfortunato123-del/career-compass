@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
-import { extractTextFromPDF, OCRProgress, isValidPDF } from "@/lib/pdf-ocr";
+import { 
+  extractTextFromDocument, 
+  ParseProgress, 
+  isValidDocument,
+  getSupportedFileType 
+} from "@/lib/document-parser";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,20 +17,33 @@ interface ParsedResume {
   ocrConfidence?: number;
   structuredData?: Record<string, unknown>;
   filePath?: string;
+  fileType?: "pdf" | "docx" | "doc";
 }
 
 export function usePDFParser() {
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<OCRProgress | null>(null);
+  const [progress, setProgress] = useState<ParseProgress | null>(null);
   const [result, setResult] = useState<ParsedResume | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const parseResume = useCallback(async (file: File): Promise<ParsedResume | null> => {
-    if (!isValidPDF(file)) {
+    const fileType = getSupportedFileType(file);
+    
+    if (!fileType) {
       toast({
         title: "Arquivo inválido",
-        description: "Por favor, envie um arquivo PDF.",
+        description: "Por favor, envie um arquivo PDF ou Word (.docx).",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    if (!user) {
+      toast({
+        title: "Não autenticado",
+        description: "Faça login para enviar seu currículo.",
         variant: "destructive",
       });
       return null;
@@ -43,15 +61,34 @@ export function usePDFParser() {
     setLoading(true);
     setProgress(null);
     setResult(null);
+    setError(null);
 
     try {
-      // Step 1: Extract text from PDF (with OCR if needed)
-      const ocrResult = await extractTextFromPDF(file, setProgress);
-
-      if (!ocrResult.text || ocrResult.text.length < 50) {
+      // Step 1: Extract text from document (PDF or DOCX, with OCR if needed)
+      let parseResult;
+      try {
+        parseResult = await extractTextFromDocument(file, setProgress);
+      } catch (extractError) {
+        const errorMessage = extractError instanceof Error 
+          ? extractError.message 
+          : "Erro ao processar o arquivo";
+        
+        setError(errorMessage);
         toast({
-          title: "PDF vazio ou ilegível",
-          description: "Não foi possível extrair texto do PDF. Verifique se o arquivo está correto.",
+          title: "Erro no processamento",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return null;
+      }
+
+      if (!parseResult.text || parseResult.text.length < 50) {
+        const errorMsg = `Arquivo ${fileType === 'pdf' ? 'PDF' : 'Word'} vazio ou ilegível. Verifique se o arquivo está correto.`;
+        setError(errorMsg);
+        toast({
+          title: "Documento vazio",
+          description: errorMsg,
           variant: "destructive",
         });
         setLoading(false);
@@ -87,12 +124,12 @@ export function usePDFParser() {
         message: "Analisando conteúdo com IA...",
       });
 
-      const { data: structuredData, error: parseError } = await supabase.functions.invoke("parse-resume", {
-        body: { text: ocrResult.text },
+      const { data: structuredData, error: aiParseError } = await supabase.functions.invoke("parse-resume", {
+        body: { text: parseResult.text },
       });
 
-      if (parseError) {
-        console.error("Parse error:", parseError);
+      if (aiParseError) {
+        console.error("Parse error:", aiParseError);
         toast({
           title: "Aviso",
           description: "Texto extraído, mas análise de IA falhou. Dados básicos salvos.",
@@ -110,9 +147,9 @@ export function usePDFParser() {
       const resumeData = {
         user_id: user.id,
         file_path: uploadError ? null : fileName,
-        raw_text: ocrResult.text,
-        is_scanned: ocrResult.isScanned,
-        ocr_processed: ocrResult.isScanned,
+        raw_text: parseResult.text,
+        is_scanned: parseResult.isScanned,
+        ocr_processed: parseResult.isScanned,
         summary: structuredData?.summary || null,
         experiences: structuredData?.experiences || [],
         education: structuredData?.education || [],
@@ -155,28 +192,29 @@ export function usePDFParser() {
         .eq("id", user.id);
 
       toast({
-        title: ocrResult.isScanned ? "OCR concluído!" : "Currículo processado!",
-        description: `${ocrResult.pageCount} página(s) analisada(s) e dados extraídos com sucesso.`,
+        title: parseResult.isScanned ? "OCR concluído!" : "Currículo processado!",
+        description: `${parseResult.pageCount} página(s) analisada(s) e dados extraídos com sucesso.`,
       });
 
-      const parsedResult: ParsedResume = {
+      const finalResult: ParsedResume = {
         id: savedResume.id,
-        text: ocrResult.text,
-        isScanned: ocrResult.isScanned,
-        pageCount: ocrResult.pageCount,
-        ocrConfidence: ocrResult.ocrConfidence,
+        text: parseResult.text,
+        isScanned: parseResult.isScanned,
+        pageCount: parseResult.pageCount,
+        ocrConfidence: parseResult.ocrConfidence,
         structuredData: structuredData || undefined,
         filePath: uploadError ? undefined : fileName,
+        fileType: parseResult.fileType,
       };
 
-      setResult(parsedResult);
+      setResult(finalResult);
       setProgress({
         stage: "complete",
         progress: 100,
         message: "Processamento completo!",
       });
 
-      return parsedResult;
+      return finalResult;
     } catch (error) {
       console.error("Error parsing PDF:", error);
       toast({

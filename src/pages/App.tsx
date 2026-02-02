@@ -131,7 +131,7 @@ export default function AppPage() {
                   </div>
                   <h1 className="text-3xl font-bold mb-3">Envie seu currículo</h1>
                   <p className="text-muted-foreground max-w-md mx-auto">
-                    Faça upload do seu PDF para começar a análise inteligente
+                    Faça upload do seu PDF ou Word para começar a análise inteligente
                   </p>
                 </div>
 
