@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   XCircle
 } from "lucide-react";
+import { ScrollAnimation } from "@/components/ui/scroll-animation";
 
 const features = [
   {
@@ -64,7 +65,7 @@ export function Features() {
 
       <div className="container relative z-10">
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <ScrollAnimation animation="fade-up" className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-medium mb-6">
             Recursos
           </span>
@@ -75,10 +76,10 @@ export function Features() {
           <p className="text-lg text-muted-foreground">
             Ferramentas práticas, sem enrolação, focadas em resultado.
           </p>
-        </div>
+        </ScrollAnimation>
 
         {/* Status Indicators Preview */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+        <ScrollAnimation animation="fade-up" delay={0.1} className="flex flex-wrap justify-center gap-4 mb-16">
           {statusIndicators.map((status) => (
             <div 
               key={status.label}
@@ -88,34 +89,39 @@ export function Features() {
               <span className={`text-sm font-medium ${status.color}`}>{status.label}</span>
             </div>
           ))}
-        </div>
+        </ScrollAnimation>
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature) => (
-            <div 
+          {features.map((feature, index) => (
+            <ScrollAnimation 
               key={feature.title}
-              className={`relative glass-card p-8 rounded-2xl transition-all duration-500 hover:shadow-glow group ${
-                feature.highlight 
-                  ? 'border-primary/30 shadow-lg shadow-primary/5' 
-                  : 'hover:border-primary/30'
-              }`}
+              animation="fade-up" 
+              delay={0.1 + index * 0.1}
             >
-              {feature.highlight && (
-                <span className="absolute -top-3 right-6 px-4 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground shadow-glow">
-                  Destaque
-                </span>
-              )}
+              <div 
+                className={`relative glass-card p-8 rounded-2xl transition-all duration-500 hover:shadow-glow group h-full ${
+                  feature.highlight 
+                    ? 'border-primary/30 shadow-lg shadow-primary/5' 
+                    : 'hover:border-primary/30'
+                }`}
+              >
+                {feature.highlight && (
+                  <span className="absolute -top-3 right-6 px-4 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground shadow-glow">
+                    Destaque
+                  </span>
+                )}
 
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 icon-glow ${
-                feature.highlight ? 'gradient-primary shadow-glow' : 'bg-primary/10 group-hover:bg-primary/20'
-              }`}>
-                <feature.icon className={`w-7 h-7 ${feature.highlight ? 'text-primary-foreground' : 'text-primary'}`} />
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 icon-glow ${
+                  feature.highlight ? 'gradient-primary shadow-glow' : 'bg-primary/10 group-hover:bg-primary/20'
+                }`}>
+                  <feature.icon className={`w-7 h-7 ${feature.highlight ? 'text-primary-foreground' : 'text-primary'}`} />
+                </div>
+
+                <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
-
-              <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-            </div>
+            </ScrollAnimation>
           ))}
         </div>
       </div>

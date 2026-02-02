@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles } from "lucide-react";
+import { ScrollAnimation } from "@/components/ui/scroll-animation";
 
 const plans = [
   {
@@ -54,7 +55,7 @@ export function Pricing() {
 
       <div className="container relative z-10">
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <ScrollAnimation animation="fade-up" className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-medium mb-6">
             Planos
           </span>
@@ -65,67 +66,72 @@ export function Pricing() {
           <p className="text-lg text-muted-foreground">
             Comece grátis. Evolua quando precisar.
           </p>
-        </div>
+        </ScrollAnimation>
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {plans.map((plan) => (
-            <div 
+          {plans.map((plan, index) => (
+            <ScrollAnimation 
               key={plan.name}
-              className={`relative glass-card rounded-3xl p-10 transition-all duration-500 ${
-                plan.popular 
-                  ? 'border-primary/50 shadow-glow hover:shadow-xl' 
-                  : 'hover:border-primary/30 hover:shadow-glow'
-              }`}
+              animation="fade-up"
+              delay={0.1 + index * 0.15}
             >
-              {plan.popular && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-sm font-semibold text-primary-foreground shadow-glow">
-                  <Sparkles className="w-4 h-4" />
-                  Mais Popular
-                </span>
-              )}
-
-              <div className="text-center mb-10">
-                <h3 className="text-2xl font-bold mb-3">{plan.name}</h3>
-                <div className="flex items-baseline justify-center gap-1 mb-3">
-                  <span className="text-5xl font-bold text-gradient">{plan.price}</span>
-                  <span className="text-muted-foreground text-lg">{plan.period}</span>
-                </div>
-                <p className="text-muted-foreground">{plan.description}</p>
-              </div>
-
-              <ul className="space-y-4 mb-10">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    {feature.included ? (
-                      <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-4 h-4 text-success" />
-                      </div>
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <X className="w-4 h-4 text-muted-foreground/50" />
-                      </div>
-                    )}
-                    <span className={`${!feature.included ? 'text-muted-foreground/50' : 'text-foreground'}`}>
-                      {feature.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button 
-                variant={plan.variant} 
-                size="lg" 
-                className={`w-full ${plan.popular ? 'shadow-glow animate-glow' : ''}`}
+              <div 
+                className={`relative glass-card rounded-3xl p-10 transition-all duration-500 h-full ${
+                  plan.popular 
+                    ? 'border-primary/50 shadow-glow hover:shadow-xl' 
+                    : 'hover:border-primary/30 hover:shadow-glow'
+                }`}
               >
-                {plan.cta}
-              </Button>
-            </div>
+                {plan.popular && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-sm font-semibold text-primary-foreground shadow-glow">
+                    <Sparkles className="w-4 h-4" />
+                    Mais Popular
+                  </span>
+                )}
+
+                <div className="text-center mb-10">
+                  <h3 className="text-2xl font-bold mb-3">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center gap-1 mb-3">
+                    <span className="text-5xl font-bold text-gradient">{plan.price}</span>
+                    <span className="text-muted-foreground text-lg">{plan.period}</span>
+                  </div>
+                  <p className="text-muted-foreground">{plan.description}</p>
+                </div>
+
+                <ul className="space-y-4 mb-10">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center gap-3">
+                      {feature.included ? (
+                        <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-4 h-4 text-success" />
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                          <X className="w-4 h-4 text-muted-foreground/50" />
+                        </div>
+                      )}
+                      <span className={`${!feature.included ? 'text-muted-foreground/50' : 'text-foreground'}`}>
+                        {feature.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button 
+                  variant={plan.variant} 
+                  size="lg" 
+                  className={`w-full ${plan.popular ? 'shadow-glow animate-glow' : ''}`}
+                >
+                  {plan.cta}
+                </Button>
+              </div>
+            </ScrollAnimation>
           ))}
         </div>
 
         {/* Future B2B teaser */}
-        <div className="mt-20 text-center">
+        <ScrollAnimation animation="fade-up" delay={0.4} className="mt-20 text-center">
           <div className="inline-flex items-center gap-3 glass-card px-6 py-4 rounded-2xl">
             <span className="text-2xl">🏢</span>
             <div className="text-left">
@@ -135,7 +141,7 @@ export function Pricing() {
               </a>
             </div>
           </div>
-        </div>
+        </ScrollAnimation>
       </div>
     </section>
   );

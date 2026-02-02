@@ -1,4 +1,5 @@
 import { Shield, Heart, Target } from "lucide-react";
+import { ScrollAnimation } from "@/components/ui/scroll-animation";
 
 const values = [
   {
@@ -28,7 +29,7 @@ export function Ethics() {
       <div className="container relative z-10">
         <div className="max-w-5xl mx-auto">
           {/* Ethics Statement */}
-          <div className="text-center mb-16">
+          <ScrollAnimation animation="scale" className="text-center mb-16">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl gradient-primary shadow-glow mb-8">
               <Shield className="w-10 h-10 text-primary-foreground" />
             </div>
@@ -40,21 +41,26 @@ export function Ethics() {
               O VagaJusta não inventa experiências. Ele organiza, destaca e orienta 
               com base no que você já construiu.
             </p>
-          </div>
+          </ScrollAnimation>
 
           {/* Values */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {values.map((value, index) => (
-              <div 
+              <ScrollAnimation 
                 key={value.title}
-                className="group glass-card text-center p-10 rounded-3xl hover:border-primary/40 transition-all duration-500 hover:shadow-glow hover:-translate-y-1"
+                animation="fade-up"
+                delay={0.1 + index * 0.15}
               >
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-all duration-300 icon-glow">
-                  <value.icon className="w-8 h-8 text-primary" />
+                <div 
+                  className="group glass-card text-center p-10 rounded-3xl hover:border-primary/40 transition-all duration-500 hover:shadow-glow hover:-translate-y-1 h-full"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-all duration-300 icon-glow">
+                    <value.icon className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">{value.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{value.description}</p>
                 </div>
-                <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">{value.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{value.description}</p>
-              </div>
+              </ScrollAnimation>
             ))}
           </div>
         </div>
