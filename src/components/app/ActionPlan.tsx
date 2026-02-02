@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, CheckCircle, Clock, BookOpen, Code, Send, MessageSquare } from "lucide-react";
+import { Calendar, CheckCircle, Clock, BookOpen, Code, Send, MessageSquare, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -47,10 +47,10 @@ const typeIcons = {
 };
 
 const typeColors = {
-  course: "text-primary bg-primary/10",
-  project: "text-accent bg-accent/10",
-  application: "text-success bg-success/10",
-  interview: "text-warning bg-warning/10",
+  course: "text-primary bg-primary/10 border-primary/20",
+  project: "text-accent bg-accent/10 border-accent/20",
+  application: "text-success bg-success/10 border-success/20",
+  interview: "text-warning bg-warning/10 border-warning/20",
 };
 
 export function ActionPlan() {
@@ -74,32 +74,35 @@ export function ActionPlan() {
     <div className="w-full">
       {/* Period Selector */}
       <Tabs value={period} onValueChange={(v) => setPeriod(v as PlanPeriod)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="14" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/30 p-1">
+          <TabsTrigger value="14" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Calendar className="w-4 h-4" />
             14 dias
           </TabsTrigger>
-          <TabsTrigger value="30" className="flex items-center gap-2">
+          <TabsTrigger value="30" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Calendar className="w-4 h-4" />
             30 dias
           </TabsTrigger>
-          <TabsTrigger value="90" className="flex items-center gap-2">
+          <TabsTrigger value="90" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Calendar className="w-4 h-4" />
             90 dias
           </TabsTrigger>
         </TabsList>
 
         {/* Progress Bar */}
-        <div className="mb-6 p-4 rounded-xl bg-card border border-border">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Progresso do plano</span>
+        <div className="mb-6 p-4 rounded-xl bg-muted/20 border border-border/30">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Progresso do plano
+            </span>
             <span className="text-sm text-muted-foreground">
               {completedCount}/{totalCount} tarefas
             </span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-3 bg-muted/50 rounded-full overflow-hidden">
             <div
-              className="h-full gradient-primary rounded-full transition-all duration-500"
+              className="h-full gradient-primary rounded-full transition-all duration-700 shadow-glow"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -115,18 +118,18 @@ export function ActionPlan() {
               return (
                 <div
                   key={item.id}
-                  className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${
+                  className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 ${
                     item.completed
-                      ? "bg-muted/50 border-border"
-                      : "bg-card border-border hover:border-primary/20"
+                      ? "bg-muted/20 border-border/30 opacity-70"
+                      : "bg-muted/10 border-border/30 hover:border-primary/30 hover:bg-muted/20"
                   }`}
                 >
                   <button
                     onClick={() => toggleItem(item.id)}
-                    className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    className={`flex-shrink-0 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
                       item.completed
-                        ? "bg-success border-success"
-                        : "border-muted-foreground hover:border-primary"
+                        ? "bg-success border-success shadow-[0_0_10px_hsl(155_75%_50%/0.3)]"
+                        : "border-muted-foreground/50 hover:border-primary hover:bg-primary/10"
                     }`}
                   >
                     {item.completed && (
@@ -136,10 +139,8 @@ export function ActionPlan() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`p-1 rounded ${colorClass}`}
-                      >
-                        <Icon className="w-3 h-3" />
+                      <span className={`p-1.5 rounded-lg border ${colorClass}`}>
+                        <Icon className="w-3.5 h-3.5" />
                       </span>
                       <h4
                         className={`font-medium text-sm ${
@@ -152,7 +153,7 @@ export function ActionPlan() {
                     <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
 
-                  <div className="flex-shrink-0 flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="flex-shrink-0 flex items-center gap-1 text-xs text-muted-foreground px-2 py-1 rounded-lg bg-muted/30">
                     <Clock className="w-3 h-3" />
                     Sem {item.week}
                   </div>
@@ -165,8 +166,8 @@ export function ActionPlan() {
 
       {/* Download/Export */}
       <div className="mt-6 flex justify-center">
-        <Button variant="outline">
-          <Calendar className="w-4 h-4" />
+        <Button variant="outline" className="border-border/50">
+          <Calendar className="w-4 h-4 mr-2" />
           Exportar para agenda
         </Button>
       </div>

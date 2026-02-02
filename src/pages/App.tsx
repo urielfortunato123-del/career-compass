@@ -9,7 +9,7 @@ import { ActionPlan } from "@/components/app/ActionPlan";
 import { CareerTransitionToggle } from "@/components/app/CareerTransitionToggle";
 import { ResumeDownload } from "@/components/app/ResumeDownload";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, FileText, Search, BarChart3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText, Search, BarChart3, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Step = "upload" | "job" | "results";
@@ -53,19 +53,32 @@ export default function AppPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Background effects */}
+      <div className="fixed inset-0 nebula-bg opacity-30 pointer-events-none" />
+      <div className="fixed inset-0 gradient-hero pointer-events-none" />
+      
+      {/* Glow orbs */}
+      <div className="fixed top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] animate-pulse-soft pointer-events-none" />
+      <div className="fixed bottom-1/3 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-[100px] animate-pulse-soft pointer-events-none" style={{ animationDelay: '1s' }} />
+      
       <Header />
       
-      <main className="flex-1 py-8">
+      <main className="flex-1 py-8 pt-28 relative z-10">
         <div className="container max-w-4xl">
           {/* Step Indicator */}
-          <div className="mb-8">
+          <div className="mb-10">
             <div className="flex items-center justify-between relative">
-              {/* Progress Line */}
-              <div className="absolute top-5 left-0 right-0 h-0.5 bg-border" />
+              {/* Progress Line Background */}
+              <div className="absolute top-5 left-0 right-0 h-0.5 bg-border/50" />
+              
+              {/* Progress Line Active */}
               <div 
-                className="absolute top-5 left-0 h-0.5 gradient-primary transition-all duration-500"
-                style={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
+                className="absolute top-5 left-0 h-0.5 transition-all duration-700 ease-out"
+                style={{ 
+                  width: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
+                  background: 'linear-gradient(90deg, hsl(175 80% 45%), hsl(155 80% 50%))'
+                }}
               />
 
               {steps.map((step, index) => {
@@ -79,23 +92,23 @@ export default function AppPage() {
                     onClick={() => {
                       if (isCompleted) goToStep(step.id);
                     }}
-                    className={`relative z-10 flex flex-col items-center transition-all ${
+                    className={`relative z-10 flex flex-col items-center transition-all duration-300 ${
                       isCompleted ? "cursor-pointer" : "cursor-default"
                     }`}
                   >
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                         isActive
-                          ? "gradient-primary text-primary-foreground shadow-glow"
+                          ? "gradient-primary text-primary-foreground shadow-glow scale-110"
                           : isCompleted
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "glass-card text-muted-foreground"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
                     </div>
                     <span
-                      className={`mt-2 text-sm font-medium ${
+                      className={`mt-3 text-sm font-medium transition-colors ${
                         isActive ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground"
                       }`}
                     >
@@ -112,53 +125,61 @@ export default function AppPage() {
             {currentStep === "upload" && (
               <div className="space-y-8">
                 <div className="text-center">
-                  <h1 className="text-2xl font-bold mb-2">Envie seu currículo</h1>
-                  <p className="text-muted-foreground">
-                    Faça upload do seu PDF para começar a análise
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                    <Sparkles className="w-4 h-4" />
+                    Passo 1 de 3
+                  </div>
+                  <h1 className="text-3xl font-bold mb-3">Envie seu currículo</h1>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Faça upload do seu PDF para começar a análise inteligente
                   </p>
                 </div>
 
-                <ResumeUpload 
-                  onUpload={(data) => {
-                    setResumeData({
-                      id: data.id,
-                      text: data.text,
-                      structuredData: data.structuredData,
-                    });
-                  }} 
-                />
+                <div className="glass-card rounded-3xl p-8 border border-border/50">
+                  <ResumeUpload 
+                    onUpload={(data) => {
+                      setResumeData({
+                        id: data.id,
+                        text: data.text,
+                        structuredData: data.structuredData,
+                      });
+                    }} 
+                  />
+                </div>
                 
                 <CareerTransitionToggle />
 
                 {resumeData?.structuredData && (
-                  <div className="bg-card border border-border rounded-xl p-4">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-primary" />
+                  <div className="glass-card rounded-2xl p-6 border border-primary/20">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-primary-foreground" />
+                      </div>
                       Dados extraídos do currículo
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {resumeData.structuredData.name && (
-                        <div>
-                          <p className="text-muted-foreground">Nome</p>
-                          <p className="font-medium">{String(resumeData.structuredData.name)}</p>
+                        <div className="p-3 rounded-xl bg-muted/30">
+                          <p className="text-xs text-muted-foreground mb-1">Nome</p>
+                          <p className="font-medium text-sm">{String(resumeData.structuredData.name)}</p>
                         </div>
                       )}
                       {resumeData.structuredData.current_role && (
-                        <div>
-                          <p className="text-muted-foreground">Cargo atual</p>
-                          <p className="font-medium">{String(resumeData.structuredData.current_role)}</p>
+                        <div className="p-3 rounded-xl bg-muted/30">
+                          <p className="text-xs text-muted-foreground mb-1">Cargo atual</p>
+                          <p className="font-medium text-sm">{String(resumeData.structuredData.current_role)}</p>
                         </div>
                       )}
                       {Array.isArray(resumeData.structuredData.experiences) && (
-                        <div>
-                          <p className="text-muted-foreground">Experiências</p>
-                          <p className="font-medium">{resumeData.structuredData.experiences.length}</p>
+                        <div className="p-3 rounded-xl bg-muted/30">
+                          <p className="text-xs text-muted-foreground mb-1">Experiências</p>
+                          <p className="font-medium text-sm text-primary">{resumeData.structuredData.experiences.length}</p>
                         </div>
                       )}
                       {Array.isArray(resumeData.structuredData.technical_skills) && (
-                        <div>
-                          <p className="text-muted-foreground">Skills</p>
-                          <p className="font-medium">{resumeData.structuredData.technical_skills.length}</p>
+                        <div className="p-3 rounded-xl bg-muted/30">
+                          <p className="text-xs text-muted-foreground mb-1">Skills</p>
+                          <p className="font-medium text-sm text-primary">{resumeData.structuredData.technical_skills.length}</p>
                         </div>
                       )}
                     </div>
@@ -171,6 +192,7 @@ export default function AppPage() {
                     size="lg"
                     disabled={!resumeUploaded}
                     onClick={nextStep}
+                    className="shadow-glow"
                   >
                     Próximo: Informar Vaga
                     <ArrowRight className="w-5 h-5" />
@@ -182,16 +204,22 @@ export default function AppPage() {
             {currentStep === "job" && (
               <div className="space-y-8">
                 <div className="text-center">
-                  <h1 className="text-2xl font-bold mb-2">Analise a vaga</h1>
-                  <p className="text-muted-foreground">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                    <Sparkles className="w-4 h-4" />
+                    Passo 2 de 3
+                  </div>
+                  <h1 className="text-3xl font-bold mb-3">Analise a vaga</h1>
+                  <p className="text-muted-foreground max-w-md mx-auto">
                     Cole o texto da vaga ou informe o cargo desejado
                   </p>
                 </div>
 
-                <JobAnalysis onAnalyze={() => setJobAnalyzed(true)} />
+                <div className="glass-card rounded-3xl p-8 border border-border/50">
+                  <JobAnalysis onAnalyze={() => setJobAnalyzed(true)} />
+                </div>
 
                 <div className="flex justify-between">
-                  <Button variant="outline" size="lg" onClick={prevStep}>
+                  <Button variant="outline" size="lg" onClick={prevStep} className="border-border/50">
                     <ArrowLeft className="w-5 h-5" />
                     Voltar
                   </Button>
@@ -200,6 +228,7 @@ export default function AppPage() {
                     size="lg"
                     disabled={!jobAnalyzed}
                     onClick={nextStep}
+                    className="shadow-glow"
                   >
                     Ver Resultados
                     <ArrowRight className="w-5 h-5" />
@@ -211,24 +240,34 @@ export default function AppPage() {
             {currentStep === "results" && (
               <div className="space-y-8">
                 <div className="text-center">
-                  <h1 className="text-2xl font-bold mb-2">Seus Resultados</h1>
-                  <p className="text-muted-foreground">
-                    Score, currículo otimizado e plano de ação
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 text-success text-sm font-medium mb-4">
+                    <Sparkles className="w-4 h-4" />
+                    Análise Completa
+                  </div>
+                  <h1 className="text-3xl font-bold mb-3">Seus Resultados</h1>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Score, currículo otimizado e plano de ação personalizado
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-1">
-                    <CompatibilityScore />
+                    <div className="glass-card rounded-3xl p-6 border border-border/50">
+                      <CompatibilityScore />
+                    </div>
                   </div>
                   <div className="lg:col-span-2 space-y-8">
-                    <ResumeComparison />
-                    <ActionPlan />
+                    <div className="glass-card rounded-3xl p-6 border border-border/50">
+                      <ResumeComparison />
+                    </div>
+                    <div className="glass-card rounded-3xl p-6 border border-border/50">
+                      <ActionPlan />
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex justify-between">
-                  <Button variant="outline" size="lg" onClick={prevStep}>
+                  <Button variant="outline" size="lg" onClick={prevStep} className="border-border/50">
                     <ArrowLeft className="w-5 h-5" />
                     Voltar
                   </Button>
