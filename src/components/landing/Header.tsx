@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Crown, Loader2, Settings } from "lucide-react";
+import { Menu, X, LogOut, Crown, Loader2, Settings, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,6 +81,12 @@ export function Header() {
                 <Link to="/history">{t("common.history")}</Link>
               </Button>
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+                <Link to="/settings">
+                  <User className="w-4 h-4 mr-1" />
+                  Perfil
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/app">{t("common.newAnalysis")}</Link>
               </Button>
               {subscription.subscribed && (
@@ -155,6 +161,12 @@ export function Header() {
                 )}
                 <Button variant="ghost" className="justify-start" asChild>
                   <Link to="/history">{t("common.history")}</Link>
+                </Button>
+                <Button variant="ghost" className="justify-start" asChild>
+                  <Link to="/settings">
+                    <User className="w-4 h-4 mr-2" />
+                    Configurações
+                  </Link>
                 </Button>
                 <Button variant="ghost" className="justify-start" asChild>
                   <Link to="/app">{t("common.newAnalysis")}</Link>
