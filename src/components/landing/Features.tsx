@@ -10,53 +10,56 @@ import {
   XCircle
 } from "lucide-react";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
-
-const features = [
-  {
-    icon: FileText,
-    title: "Currículo ATS Inteligente",
-    description: "Duas versões: base otimizada e direcionada para a vaga. Palavras-chave inseridas naturalmente.",
-    highlight: true,
-  },
-  {
-    icon: Shield,
-    title: "Detector de Vagas Cilada",
-    description: "Identificamos sinais de risco e classificamos: Vaga Justa, Atenção ou Cilada Provável.",
-    highlight: false,
-  },
-  {
-    icon: Clock,
-    title: "Estimativa Realista de Tempo",
-    description: "Saiba quanto tempo pode levar: 2-6 semanas, 2-4 meses ou mais. Sem falsas promessas.",
-    highlight: false,
-  },
-  {
-    icon: BookOpen,
-    title: "Cursos e Projetos Recomendados",
-    description: "Identificamos lacunas reais e sugerimos cursos curtos e projetos práticos que destravam entrevistas.",
-    highlight: false,
-  },
-  {
-    icon: MessageSquare,
-    title: "Simulador de Entrevista",
-    description: "5 perguntas prováveis da vaga com respostas modelo e correção de erros comuns.",
-    highlight: false,
-  },
-  {
-    icon: RefreshCw,
-    title: "Modo Transição de Carreira",
-    description: "Título híbrido, tradução de experiências e prioridade para projetos. Para quem quer mudar de área.",
-    highlight: true,
-  },
-];
-
-const statusIndicators = [
-  { icon: CheckCircle, label: "Vaga Justa", color: "text-success", bgColor: "bg-success/10", borderColor: "border-success/30" },
-  { icon: AlertTriangle, label: "Atenção", color: "text-warning", bgColor: "bg-warning/10", borderColor: "border-warning/30" },
-  { icon: XCircle, label: "Cilada Provável", color: "text-danger", bgColor: "bg-danger/10", borderColor: "border-danger/30" },
-];
+import { useTranslation } from "react-i18next";
 
 export function Features() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: FileText,
+      title: t("features.atsTitle"),
+      description: t("features.atsDesc"),
+      highlight: true,
+    },
+    {
+      icon: Shield,
+      title: t("features.trapTitle"),
+      description: t("features.trapDesc"),
+      highlight: false,
+    },
+    {
+      icon: Clock,
+      title: t("features.timeTitle"),
+      description: t("features.timeDesc"),
+      highlight: false,
+    },
+    {
+      icon: BookOpen,
+      title: t("features.coursesTitle"),
+      description: t("features.coursesDesc"),
+      highlight: false,
+    },
+    {
+      icon: MessageSquare,
+      title: t("features.interviewTitle"),
+      description: t("features.interviewDesc"),
+      highlight: false,
+    },
+    {
+      icon: RefreshCw,
+      title: t("features.transitionTitle"),
+      description: t("features.transitionDesc"),
+      highlight: true,
+    },
+  ];
+
+  const statusIndicators = [
+    { icon: CheckCircle, label: t("features.statusFair"), color: "text-success", bgColor: "bg-success/10", borderColor: "border-success/30" },
+    { icon: AlertTriangle, label: t("features.statusWarning"), color: "text-warning", bgColor: "bg-warning/10", borderColor: "border-warning/30" },
+    { icon: XCircle, label: t("features.statusTrap"), color: "text-danger", bgColor: "bg-danger/10", borderColor: "border-danger/30" },
+  ];
+
   return (
     <section id="recursos" className="relative py-28 overflow-hidden">
       {/* Background nebula effect */}
@@ -67,14 +70,14 @@ export function Features() {
         {/* Header */}
         <ScrollAnimation animation="fade-up" className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-medium mb-6">
-            Recursos
+            {t("features.badge")}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Tudo que você precisa para{" "}
-            <span className="text-gradient-accent">conseguir a vaga</span>
+            {t("features.title")}{" "}
+            <span className="text-gradient-accent">{t("features.titleHighlight")}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Ferramentas práticas, sem enrolação, focadas em resultado.
+            {t("features.description")}
           </p>
         </ScrollAnimation>
 
@@ -108,7 +111,7 @@ export function Features() {
               >
                 {feature.highlight && (
                   <span className="absolute -top-3 right-6 px-4 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground shadow-glow">
-                    Destaque
+                    {t("common.highlight")}
                   </span>
                 )}
 
