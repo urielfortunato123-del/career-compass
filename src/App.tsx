@@ -14,6 +14,7 @@ import HelpPage from "./pages/Help";
 import PrivacyPage from "./pages/Privacy";
 import TermsPage from "./pages/Terms";
 import CheckoutSuccessPage from "./pages/CheckoutSuccess";
+import SettingsPage from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,11 @@ const App = () => (
             <Route path="/checkout/success" element={
               <ProtectedRoute>
                 <CheckoutSuccessPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
