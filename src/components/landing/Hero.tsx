@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Target, TrendingUp, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function Hero() {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-screen nebula-bg overflow-hidden">
       {/* Gradient overlay */}
@@ -20,33 +23,32 @@ export function Hero() {
         <div className="animate-fade-in mb-8">
           <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card text-primary text-sm font-medium border border-primary/20">
             <Sparkles className="w-4 h-4" />
-            IA de Carreira sem promessas falsas
+            {t("hero.badge")}
           </span>
         </div>
 
         {/* Main Headline */}
         <h1 className="animate-slide-up text-4xl md:text-6xl lg:text-7xl font-bold max-w-5xl leading-tight mb-8">
-          Pare de perder vagas por{" "}
-          <span className="text-gradient-accent">currículo errado</span>
+          {t("hero.title")}{" "}
+          <span className="text-gradient-accent">{t("hero.titleHighlight")}</span>
         </h1>
 
         {/* Subheadline */}
         <p className="animate-slide-up text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed" style={{ animationDelay: "0.15s" }}>
-          O VagaJusta analisa seu currículo, ajusta para a vaga certa e mostra o 
-          caminho mais curto até a contratação. Sem inventar experiência. 
-          <span className="text-foreground font-medium"> Só estratégia real.</span>
+          {t("hero.description")}
+          <span className="text-foreground font-medium"> {t("hero.descriptionHighlight")}</span>
         </p>
 
         {/* CTA Buttons */}
         <div className="animate-slide-up flex flex-col sm:flex-row gap-4 mb-16" style={{ animationDelay: "0.25s" }}>
           <Button variant="hero" size="xl" className="shadow-glow animate-glow" asChild>
             <Link to="/app">
-              Analisar meu currículo
+              {t("hero.cta")}
               <ArrowRight className="w-5 h-5" />
             </Link>
           </Button>
           <Button variant="outline" size="xl" className="border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5" asChild>
-            <a href="#como-funciona">Ver como funciona</a>
+            <a href="#como-funciona">{t("hero.secondary")}</a>
           </Button>
         </div>
 
@@ -57,8 +59,8 @@ export function Hero() {
               <FileText className="w-6 h-6 text-primary-foreground" />
             </div>
             <div className="text-left">
-              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">Currículo ATS</p>
-              <p className="text-sm text-muted-foreground">Otimizado para triagem</p>
+              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{t("hero.feature1Title")}</p>
+              <p className="text-sm text-muted-foreground">{t("hero.feature1Desc")}</p>
             </div>
           </div>
 
@@ -67,8 +69,8 @@ export function Hero() {
               <Target className="w-6 h-6 text-primary-foreground" />
             </div>
             <div className="text-left">
-              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">Detector de Ciladas</p>
-              <p className="text-sm text-muted-foreground">Vagas que não valem</p>
+              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{t("hero.feature2Title")}</p>
+              <p className="text-sm text-muted-foreground">{t("hero.feature2Desc")}</p>
             </div>
           </div>
 
@@ -77,15 +79,15 @@ export function Hero() {
               <TrendingUp className="w-6 h-6 text-primary-foreground" />
             </div>
             <div className="text-left">
-              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">Plano de Ação</p>
-              <p className="text-sm text-muted-foreground">14, 30 ou 90 dias</p>
+              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{t("hero.feature3Title")}</p>
+              <p className="text-sm text-muted-foreground">{t("hero.feature3Desc")}</p>
             </div>
           </div>
         </div>
 
         {/* Trust badge */}
         <p className="animate-fade-in mt-14 text-sm text-muted-foreground" style={{ animationDelay: "0.45s" }}>
-          ✨ Primeira análise gratuita. Sem cartão de crédito.
+          {t("hero.trustBadge")}
         </p>
       </div>
     </section>

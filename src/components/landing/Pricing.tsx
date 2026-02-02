@@ -1,50 +1,53 @@
 import { Button } from "@/components/ui/button";
 import { Check, X, Sparkles } from "lucide-react";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
-
-const plans = [
-  {
-    name: "Free",
-    price: "R$ 0",
-    period: "/mês",
-    description: "Ideal para conhecer o produto",
-    features: [
-      { text: "1 upload de currículo por mês", included: true },
-      { text: "1 análise de vaga", included: true },
-      { text: "Score de empregabilidade", included: true },
-      { text: "Visualização do currículo ATS", included: true },
-      { text: "Detector de cilada", included: true },
-      { text: "Download em PDF/DOCX", included: false },
-      { text: "Plano de ação", included: false },
-      { text: "Modo transição de carreira", included: false },
-    ],
-    cta: "Começar Grátis",
-    variant: "outline" as const,
-    popular: false,
-  },
-  {
-    name: "Pro",
-    price: "R$ 29,90",
-    period: "/mês",
-    description: "Produto principal para quem quer resultado",
-    features: [
-      { text: "Upload ilimitado de currículos", included: true },
-      { text: "Análise ilimitada de vagas", included: true },
-      { text: "Score de empregabilidade", included: true },
-      { text: "Currículo ATS Base + Direcionado", included: true },
-      { text: "Download em PDF e DOCX", included: true },
-      { text: "Palavras-chave ATS detalhadas", included: true },
-      { text: "Plano 14/30/90 dias", included: true },
-      { text: "Modo transição de carreira", included: true },
-      { text: "Simulador de entrevista", included: true },
-    ],
-    cta: "Assinar Pro",
-    variant: "hero" as const,
-    popular: true,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export function Pricing() {
+  const { t } = useTranslation();
+
+  const plans = [
+    {
+      name: t("pricing.freeName"),
+      price: t("pricing.freePrice"),
+      period: t("pricing.perMonth"),
+      description: t("pricing.freeDesc"),
+      features: [
+        { text: t("pricing.feature1Free"), included: true },
+        { text: t("pricing.feature2Free"), included: true },
+        { text: t("pricing.feature3"), included: true },
+        { text: t("pricing.feature4Free"), included: true },
+        { text: t("pricing.feature5"), included: true },
+        { text: t("pricing.feature6"), included: false },
+        { text: t("pricing.feature7"), included: false },
+        { text: t("pricing.feature8"), included: false },
+      ],
+      cta: t("pricing.ctaFree"),
+      variant: "outline" as const,
+      popular: false,
+    },
+    {
+      name: t("pricing.proName"),
+      price: t("pricing.proPrice"),
+      period: t("pricing.perMonth"),
+      description: t("pricing.proDesc"),
+      features: [
+        { text: t("pricing.feature1Pro"), included: true },
+        { text: t("pricing.feature2Pro"), included: true },
+        { text: t("pricing.feature3"), included: true },
+        { text: t("pricing.feature4Pro"), included: true },
+        { text: t("pricing.feature6Pro"), included: true },
+        { text: t("pricing.feature9Pro"), included: true },
+        { text: t("pricing.feature10Pro"), included: true },
+        { text: t("pricing.feature8"), included: true },
+        { text: t("pricing.feature11Pro"), included: true },
+      ],
+      cta: t("pricing.ctaPro"),
+      variant: "hero" as const,
+      popular: true,
+    },
+  ];
+
   return (
     <section id="planos" className="relative py-28 overflow-hidden">
       {/* Background */}
@@ -57,14 +60,14 @@ export function Pricing() {
         {/* Header */}
         <ScrollAnimation animation="fade-up" className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-medium mb-6">
-            Planos
+            {t("pricing.badge")}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Escolha o plano{" "}
-            <span className="text-gradient-accent">certo para você</span>
+            {t("pricing.title")}{" "}
+            <span className="text-gradient-accent">{t("pricing.titleHighlight")}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Comece grátis. Evolua quando precisar.
+            {t("pricing.description")}
           </p>
         </ScrollAnimation>
 
@@ -86,7 +89,7 @@ export function Pricing() {
                 {plan.popular && (
                   <span className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-primary text-sm font-semibold text-primary-foreground shadow-glow">
                     <Sparkles className="w-4 h-4" />
-                    Mais Popular
+                    {t("common.mostPopular")}
                   </span>
                 )}
 
@@ -135,9 +138,9 @@ export function Pricing() {
           <div className="inline-flex items-center gap-3 glass-card px-6 py-4 rounded-2xl">
             <span className="text-2xl">🏢</span>
             <div className="text-left">
-              <p className="text-sm text-muted-foreground">Empresas e instituições de ensino</p>
+              <p className="text-sm text-muted-foreground">{t("pricing.b2bText")}</p>
               <a href="#" className="text-primary hover:text-primary/80 font-medium transition-colors">
-                Conheça nosso plano educacional e corporativo →
+                {t("pricing.b2bLink")}
               </a>
             </div>
           </div>

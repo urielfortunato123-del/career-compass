@@ -1,34 +1,37 @@
 import { Upload, Search, FileCheck, Rocket } from "lucide-react";
 import { ScrollAnimation } from "@/components/ui/scroll-animation";
-
-const steps = [
-  {
-    icon: Upload,
-    number: "01",
-    title: "Envie seu currículo",
-    description: "Faça upload do seu PDF. Currículos digitais ou escaneados são aceitos.",
-  },
-  {
-    icon: Search,
-    number: "02",
-    title: "Cole a vaga desejada",
-    description: "Informe o cargo ou cole o texto da vaga. Nossa IA identifica o que importa.",
-  },
-  {
-    icon: FileCheck,
-    number: "03",
-    title: "Veja o antes e depois",
-    description: "Currículo otimizado para ATS, com palavras-chave e estrutura correta.",
-  },
-  {
-    icon: Rocket,
-    number: "04",
-    title: "Receba seu plano de ação",
-    description: "Saiba exatamente o que fazer para conseguir a vaga mais rápido.",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export function HowItWorks() {
+  const { t } = useTranslation();
+
+  const steps = [
+    {
+      icon: Upload,
+      number: "01",
+      title: t("howItWorks.step1Title"),
+      description: t("howItWorks.step1Desc"),
+    },
+    {
+      icon: Search,
+      number: "02",
+      title: t("howItWorks.step2Title"),
+      description: t("howItWorks.step2Desc"),
+    },
+    {
+      icon: FileCheck,
+      number: "03",
+      title: t("howItWorks.step3Title"),
+      description: t("howItWorks.step3Desc"),
+    },
+    {
+      icon: Rocket,
+      number: "04",
+      title: t("howItWorks.step4Title"),
+      description: t("howItWorks.step4Desc"),
+    },
+  ];
+
   return (
     <section id="como-funciona" className="relative py-28 overflow-hidden">
       {/* Background */}
@@ -41,14 +44,14 @@ export function HowItWorks() {
         {/* Header */}
         <ScrollAnimation animation="fade-up" className="text-center max-w-2xl mx-auto mb-20">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-primary text-sm font-medium mb-6">
-            Como Funciona
+            {t("howItWorks.badge")}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            4 passos para um currículo que{" "}
-            <span className="text-gradient">passa na triagem</span>
+            {t("howItWorks.title")}{" "}
+            <span className="text-gradient">{t("howItWorks.titleHighlight")}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Processo simples e direto. Sem complicação, sem enrolação.
+            {t("howItWorks.description")}
           </p>
         </ScrollAnimation>
 
