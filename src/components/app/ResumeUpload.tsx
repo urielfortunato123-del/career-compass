@@ -1,15 +1,18 @@
 import { useState, useCallback } from "react";
-import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, FileText, X, CheckCircle, AlertCircle, ScanLine, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { usePDFParser } from "@/hooks/usePDFParser";
+import { formatFileSize } from "@/lib/pdf-ocr";
 
 interface ResumeUploadProps {
-  onUpload?: (file: File) => void;
+  onUpload?: (data: { file: File; text: string; structuredData?: Record<string, unknown> }) => void;
 }
 
 export function ResumeUpload({ onUpload }: ResumeUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const { parseResume, loading, progress, result, reset } = usePDFParser();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -21,39 +24,44 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
 
     const files = e.dataTransfer.files;
     if (files?.[0]?.type === "application/pdf") {
-      processFile(files[0]);
+      await processFile(files[0]);
     }
   }, []);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files?.[0]) {
-      processFile(files[0]);
+      await processFile(files[0]);
     }
   }, []);
 
-  const processFile = (selectedFile: File) => {
+  const processFile = async (selectedFile: File) => {
     setFile(selectedFile);
-    setUploadStatus("uploading");
     
-    // Simulate upload process
-    setTimeout(() => {
-      setUploadStatus("success");
-      onUpload?.(selectedFile);
-    }, 1500);
+    const parsed = await parseResume(selectedFile);
+    
+    if (parsed) {
+      onUpload?.({
+        file: selectedFile,
+        text: parsed.text,
+        structuredData: parsed.structuredData,
+      });
+    }
   };
 
   const removeFile = () => {
     setFile(null);
-    setUploadStatus("idle");
+    reset();
   };
+
+  const uploadStatus = loading ? "uploading" : result ? "success" : file ? "error" : "idle";
 
   return (
     <div className="w-full">
@@ -104,7 +112,9 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
               uploadStatus === "success" ? "bg-success/10" : 
               uploadStatus === "error" ? "bg-danger/10" : "bg-primary/10"
             }`}>
-              {uploadStatus === "success" ? (
+              {loading ? (
+                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+              ) : uploadStatus === "success" ? (
                 <CheckCircle className="w-6 h-6 text-success" />
               ) : uploadStatus === "error" ? (
                 <AlertCircle className="w-6 h-6 text-danger" />
@@ -116,31 +126,56 @@ export function ResumeUpload({ onUpload }: ResumeUploadProps) {
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{file.name}</p>
               <p className="text-sm text-muted-foreground">
-                {uploadStatus === "uploading" && "Processando..."}
-                {uploadStatus === "success" && "Currículo carregado com sucesso!"}
-                {uploadStatus === "error" && "Erro ao processar arquivo"}
+                {formatFileSize(file.size)}
+                {result?.isScanned && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-warning">
+                    <ScanLine className="w-3 h-3" />
+                    OCR aplicado
+                  </span>
+                )}
               </p>
+              {loading && progress && (
+                <p className="text-xs text-primary mt-1">{progress.message}</p>
+              )}
+              {result && (
+                <p className="text-xs text-success mt-1">
+                  ✓ {result.pageCount} página(s) processada(s)
+                  {result.ocrConfidence && ` • ${Math.round(result.ocrConfidence)}% confiança OCR`}
+                </p>
+              )}
             </div>
 
             <button
               onClick={removeFile}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              disabled={loading}
+              className="p-2 rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
             >
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
 
-          {uploadStatus === "uploading" && (
-            <div className="mt-4 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div className="h-full gradient-primary rounded-full animate-pulse" style={{ width: "60%" }} />
+          {loading && progress && (
+            <div className="mt-4 space-y-2">
+              <Progress value={progress.progress} className="h-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{progress.stage === "ocr" ? "🔍 OCR Tesseract" : "📄 Extração"}</span>
+                <span>{Math.round(progress.progress)}%</span>
+              </div>
             </div>
           )}
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground text-center mt-4">
-        📄 PDFs textuais ou escaneados são aceitos. OCR automático quando necessário.
-      </p>
+      <div className="flex items-center justify-center gap-4 mt-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <FileText className="w-3 h-3" />
+          PDFs textuais
+        </span>
+        <span className="flex items-center gap-1">
+          <ScanLine className="w-3 h-3" />
+          PDFs escaneados (OCR)
+        </span>
+      </div>
     </div>
   );
 }
