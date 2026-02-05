@@ -86,83 +86,38 @@ serve(async (req) => {
       );
     }
 
-    // Try Lovable AI Gateway first, fallback to OpenRouter
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    
-    if (!LOVABLE_API_KEY && !OPENROUTER_API_KEY) {
-      throw new Error("No AI API key is configured");
+    if (!OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     const userMessage = `Extraia os dados deste currículo:
 
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
-    let response;
-    let usedProvider = "";
-
-    // Try Lovable AI Gateway first (preferred)
-    if (LOVABLE_API_KEY) {
-      try {
-        console.log("Using Lovable AI Gateway for resume parsing");
-        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMessage },
-            ],
-            temperature: 0.1,
-          }),
-        });
-        usedProvider = "lovable";
-        
-        if (!response.ok) {
-          console.error("Lovable AI Gateway error:", response.status);
-          // Fall through to OpenRouter
-          response = null;
-        }
-      } catch (e) {
-        console.error("Lovable AI Gateway failed:", e);
-        response = null;
-      }
-    }
-
-    // Fallback to OpenRouter
-    if (!response && OPENROUTER_API_KEY) {
-      console.log("Falling back to OpenRouter for resume parsing");
-      response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vagajusta.app",
-          "X-Title": "VagaJusta",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.0-flash-001",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userMessage },
-          ],
-          temperature: 0.1,
-        }),
-      });
-      usedProvider = "openrouter";
-    }
-
-    if (!response) {
-      throw new Error("All AI providers failed");
-    }
+    console.log("Using OpenRouter for resume parsing");
+    
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://vagajusta.app",
+        "X-Title": "VagaJusta",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.0-flash-001",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+        temperature: 0.1,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`${usedProvider} error:`, response.status, errorText);
+      console.error("OpenRouter error:", response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
@@ -212,7 +167,7 @@ ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
       throw new Error("Failed to parse resume extraction - invalid JSON");
     }
 
-    console.log("Resume parsed successfully via", usedProvider, "- found", result.technical_skills?.length || 0, "skills");
+    console.log("Resume parsed successfully - found", result.technical_skills?.length || 0, "skills");
 
     return new Response(
       JSON.stringify(result),
