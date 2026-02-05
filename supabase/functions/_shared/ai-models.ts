@@ -1,16 +1,17 @@
 // Shared AI model configuration for all edge functions
-// All models run in parallel - first response wins
+// All models run in parallel - first response wins (optimized for speed)
 
 export const AI_MODELS = [
-  "openai/gpt-oss-120b:free",
+  "google/gemini-2.0-flash-001",           // Ultra-fast
+  "google/gemini-2.5-flash-preview-05-20", // Very fast
+  "zhipu/glm-4.5-flash-250414",            // Fast Chinese model
   "mistralai/mistral-small-3.1-24b-instruct:free",
-  "nvidia/nemotron-3-nano-30b-a3b:free",
-  "xiaomi/mimo-v2-flash",
+  "xiaomi/mimo-v2-flash",                   // Fast
   "deepseek/deepseek-r1-0528:free"
 ] as const;
 
-export const DEFAULT_TIMEOUT_MS = 30000;
-export const EXTENDED_TIMEOUT_MS = 35000;
+export const DEFAULT_TIMEOUT_MS = 20000;   // Reduced from 30s
+export const EXTENDED_TIMEOUT_MS = 25000;  // Reduced from 35s
 
 export interface AIRequestConfig {
   systemPrompt: string;
