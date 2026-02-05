@@ -87,7 +87,7 @@ Analise o currículo e faça TODAS as melhorias necessárias para atingir no mí
           "X-Title": "VagaJusta",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash-001",
+          model: "nvidia/nemotron-3-nano-30b-a3b:free",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: userMessage },

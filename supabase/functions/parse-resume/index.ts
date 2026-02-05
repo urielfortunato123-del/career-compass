@@ -112,7 +112,7 @@ ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
           "X-Title": "VagaJusta",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash-001",
+          model: "nvidia/nemotron-3-nano-30b-a3b:free",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: userMessage },
