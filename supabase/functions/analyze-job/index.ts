@@ -63,7 +63,7 @@ serve(async (req) => {
       ? `Analise esta vaga:\n\n${description}`
       : `Analise uma vaga para o cargo: ${title}${area ? ` na área de ${area}` : ''}`;
 
-    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
+    const models = ["openai/gpt-oss-120b:free", "deepseek/deepseek-r1-0528:free"];
     let data;
 
     for (const model of models) {
