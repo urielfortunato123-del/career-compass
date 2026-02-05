@@ -1,7 +1,7 @@
 // Shared AI model configuration for all edge functions
-// All models run in parallel - first response wins (optimized for speed)
+// Ollama is the PRIMARY model, OpenRouter models are FALLBACK (race condition)
 
-export const AI_MODELS = [
+export const OPENROUTER_MODELS = [
   "google/gemini-2.0-flash-001",           // Ultra-fast
   "google/gemini-2.5-flash-preview-05-20", // Very fast
   "google/gemma-3n-e2b-it:free",           // New Gemma model
@@ -11,8 +11,9 @@ export const AI_MODELS = [
   "deepseek/deepseek-r1-0528:free"
 ] as const;
 
-export const DEFAULT_TIMEOUT_MS = 20000;   // Reduced from 30s
-export const EXTENDED_TIMEOUT_MS = 25000;  // Reduced from 35s
+export const DEFAULT_TIMEOUT_MS = 20000;
+export const EXTENDED_TIMEOUT_MS = 25000;
+export const OLLAMA_TIMEOUT_MS = 15000; // Faster timeout for Ollama
 
 export interface AIRequestConfig {
   systemPrompt: string;
@@ -20,9 +21,111 @@ export interface AIRequestConfig {
   temperature?: number;
   maxTokens?: number;
   timeoutMs?: number;
+  ollamaModel?: string; // Default: "llama3.2" or user preference
 }
 
+// Try Ollama first, then fallback to OpenRouter race
 export async function callAIWithRace(config: AIRequestConfig): Promise<{
+  content: string;
+  model: string;
+  responseTimeMs: number;
+}> {
+  const startTime = Date.now();
+  
+  // Try Ollama first (primary)
+  const ollamaResult = await tryOllama(config, startTime);
+  if (ollamaResult) {
+    return ollamaResult;
+  }
+
+  // Fallback to OpenRouter race
+  console.log("Ollama failed or unavailable, falling back to OpenRouter...");
+  return await callOpenRouterRace(config, startTime);
+}
+
+// Ollama primary call
+async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
+  content: string;
+  model: string;
+  responseTimeMs: number;
+} | null> {
+  const OLLAMA_API_URL = Deno.env.get("OLLAMA_API_URL");
+  const OLLAMA_API_KEY = Deno.env.get("OLLAMA_API_KEY");
+  
+  if (!OLLAMA_API_URL) {
+    console.log("OLLAMA_API_URL not configured, skipping Ollama");
+    return null;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), OLLAMA_TIMEOUT_MS);
+  const model = config.ollamaModel || "llama3.2";
+
+  try {
+    console.log(`Trying Ollama (${model})...`);
+    
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    
+    // Add API key if configured
+    if (OLLAMA_API_KEY) {
+      headers["Authorization"] = `Bearer ${OLLAMA_API_KEY}`;
+    }
+
+    const response = await fetch(`${OLLAMA_API_URL}/api/chat`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: config.systemPrompt },
+          { role: "user", content: config.userMessage },
+        ],
+        stream: false,
+        options: {
+          temperature: config.temperature ?? 0.2,
+          num_predict: config.maxTokens ?? 4000,
+        },
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`Ollama failed: ${response.status}`);
+      return null;
+    }
+
+    const result = await response.json();
+    const responseTimeMs = Date.now() - startTime;
+    const content = result.message?.content;
+
+    if (!content) {
+      console.error("Empty response from Ollama");
+      return null;
+    }
+
+    console.log(`Success with Ollama (${model}) in ${responseTimeMs}ms`);
+    return {
+      content,
+      model: `ollama/${model}`,
+      responseTimeMs,
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Ollama timeout");
+    } else {
+      console.error("Ollama error:", error);
+    }
+    return null;
+  }
+}
+
+// OpenRouter fallback with race condition
+async function callOpenRouterRace(config: AIRequestConfig, startTime: number): Promise<{
   content: string;
   model: string;
   responseTimeMs: number;
@@ -35,11 +138,10 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
   const controller = new AbortController();
   const timeoutMs = config.timeoutMs || DEFAULT_TIMEOUT_MS;
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  const startTime = Date.now();
 
   try {
-    const fetchPromises = AI_MODELS.map(async (model) => {
-      console.log(`Starting model: ${model}`);
+    const fetchPromises = OPENROUTER_MODELS.map(async (model) => {
+      console.log(`Starting OpenRouter model: ${model}`);
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -72,7 +174,7 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
     });
 
     const winner = await Promise.any(fetchPromises);
-    console.log(`Winner: ${winner.model}`);
+    console.log(`OpenRouter winner: ${winner.model}`);
 
     const content = winner.data.choices?.[0]?.message?.content;
     if (!content) {
