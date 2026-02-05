@@ -147,16 +147,16 @@ ${additional_details || "Nenhum detalhe adicional fornecido"}
 
 Analise o currículo e faça TODAS as melhorias necessárias para atingir no mínimo 95% de compatibilidade.`;
 
-    // All models run in parallel - first response wins
+    // All models run in parallel - first response wins (optimized for speed)
     const models = [
-      "openai/gpt-oss-120b:free",
+      "google/gemini-2.0-flash-001",
+      "google/gemini-2.5-flash-preview-05-20",
+      "zhipu/glm-4.5-flash-250414",
       "mistralai/mistral-small-3.1-24b-instruct:free",
-      "nvidia/nemotron-3-nano-30b-a3b:free",
-      "xiaomi/mimo-v2-flash",
-      "deepseek/deepseek-r1-0528:free"
+      "xiaomi/mimo-v2-flash"
     ];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     let data;
     try {
