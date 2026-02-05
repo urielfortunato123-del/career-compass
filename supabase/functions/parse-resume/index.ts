@@ -95,70 +95,59 @@ serve(async (req) => {
 
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
-    const models = [
-      "google/gemini-2.0-flash-001",
-      "zhipu/glm-4.5-flash-250414"
-    ];
+    // Use fastest model with timeout for speed
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
 
-    let data;
-    let lastError: { status: number; text: string } | null = null;
-
-    for (const model of models) {
-      console.log(`Trying model: ${model}`);
+    try {
+      console.log("Starting parse with gemini-2.0-flash-001");
+      const startTime = Date.now();
       
-      try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMessage },
-            ],
-            temperature: 0.1,
-          }),
-        });
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://vagajusta.app",
+          "X-Title": "VagaJusta",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.0-flash-001",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userMessage },
+          ],
+          temperature: 0.1,
+          max_tokens: 4000,
+        }),
+        signal: controller.signal,
+      });
 
-        if (response.ok) {
-          data = await response.json();
-          console.log(`Success with model: ${model}`);
-          break;
-        }
+      clearTimeout(timeoutId);
+      console.log(`API call took ${Date.now() - startTime}ms`);
 
+      if (!response.ok) {
         const errorText = await response.text();
-        console.error(`Model ${model} failed:`, response.status, errorText);
-        lastError = { status: response.status, text: errorText };
-
+        console.error("Model failed:", response.status, errorText);
+        
         if (response.status === 402) {
           return new Response(
             JSON.stringify({ error: "Créditos insuficientes. Por favor, adicione créditos à sua conta." }),
             { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-
-        // Continue to next model on 429 or other errors
-      } catch (err) {
-        console.error(`Model ${model} exception:`, err);
-        lastError = { status: 0, text: String(err) };
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        throw new Error(`API error: ${response.status}`);
       }
-    }
 
-    if (!data) {
-      if (lastError?.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error("Failed to parse resume with AI - all models failed");
-    }
-    const content = data.choices?.[0]?.message?.content;
+      const data = await response.json();
+
+      const content = data.choices?.[0]?.message?.content;
     
     if (!content) {
       throw new Error("Empty response from AI");
@@ -188,13 +177,22 @@ ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
       throw new Error("Failed to parse resume extraction - invalid JSON");
     }
 
-    console.log("Resume parsed successfully - found", result.technical_skills?.length || 0, "skills");
+      console.log("Resume parsed successfully - found", result.technical_skills?.length || 0, "skills");
 
-    return new Response(
-      JSON.stringify(result),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-
+      return new Response(
+        JSON.stringify(result),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        return new Response(
+          JSON.stringify({ error: "Tempo limite excedido. Tente com um currículo menor." }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      throw fetchError;
+    }
   } catch (error) {
     console.error("parse-resume error:", error);
     return new Response(
