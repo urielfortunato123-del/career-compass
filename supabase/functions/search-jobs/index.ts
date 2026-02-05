@@ -99,6 +99,7 @@ Inclua links reais de sites de carreiras e faixas salariais do mercado local.`;
     const models = [
       "google/gemini-2.0-flash-001",
       "google/gemini-2.5-flash-preview-05-20",
+      "google/gemma-3n-e2b-it:free",
       "zhipu/glm-4.5-flash-250414",
       "xiaomi/mimo-v2-flash"
     ];
