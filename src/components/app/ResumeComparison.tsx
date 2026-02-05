@@ -1,7 +1,15 @@
 import { useState } from "react";
-import { FileText, Download, Eye, Sparkles } from "lucide-react";
+import { FileText, Download, Eye, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import ReactMarkdown from "react-markdown";
 
 interface ResumeComparisonProps {
   originalResume?: {
@@ -19,6 +27,8 @@ interface ResumeComparisonProps {
     skills: string[];
     keywords: string[];
   };
+  baseResumeMarkdown?: string;
+  targetedResumeMarkdown?: string;
 }
 
 export function ResumeComparison({
@@ -46,8 +56,99 @@ export function ResumeComparison({
     skills: ["React", "TypeScript", "JavaScript ES6+", "Node.js", "Testes Automatizados", "CI/CD"],
     keywords: ["React", "TypeScript", "Frontend", "Testes", "JavaScript", "Desenvolvimento Web"],
   },
+  baseResumeMarkdown,
+  targetedResumeMarkdown,
 }: Partial<ResumeComparisonProps>) {
   const [activeTab, setActiveTab] = useState("comparison");
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [previewContent, setPreviewContent] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [downloading, setDownloading] = useState<"base" | "targeted" | null>(null);
+
+  // Generate base resume markdown from optimized data if not provided
+  const generateBaseMarkdown = () => {
+    return `# ${optimizedResume.name}
+
+## ${optimizedResume.title}
+
+### Resumo Profissional
+${optimizedResume.summary}
+
+### Experiência Profissional
+${optimizedResume.experience.map(exp => `- ${exp}`).join('\n')}
+
+### Habilidades Técnicas
+${optimizedResume.skills.join(' • ')}
+
+---
+*Currículo otimizado para ATS - VagaJusta*
+`;
+  };
+
+  // Generate targeted resume markdown
+  const generateTargetedMarkdown = () => {
+    return `# ${optimizedResume.name}
+
+## ${optimizedResume.title}
+
+### Resumo Profissional
+${optimizedResume.summary}
+
+### Experiência Profissional
+${optimizedResume.experience.map(exp => `- ${exp}`).join('\n')}
+
+### Habilidades Técnicas
+${optimizedResume.skills.join(' • ')}
+
+### Palavras-chave
+${optimizedResume.keywords.join(' • ')}
+
+---
+*Currículo direcionado para vaga específica - VagaJusta*
+`;
+  };
+
+  const handlePreview = (type: "base" | "targeted") => {
+    if (type === "base") {
+      setPreviewContent(baseResumeMarkdown || generateBaseMarkdown());
+      setPreviewTitle("Currículo ATS Base");
+    } else {
+      setPreviewContent(targetedResumeMarkdown || generateTargetedMarkdown());
+      setPreviewTitle("Currículo Direcionado");
+    }
+    setShowPreviewDialog(true);
+  };
+
+  const handleDownload = async (type: "base" | "targeted") => {
+    setDownloading(type);
+    
+    try {
+      const content = type === "base" 
+        ? (baseResumeMarkdown || generateBaseMarkdown())
+        : (targetedResumeMarkdown || generateTargetedMarkdown());
+      
+      const filename = type === "base" 
+        ? "curriculo-ats-base.md"
+        : "curriculo-direcionado.md";
+
+      // Create blob and download
+      const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -188,13 +289,30 @@ export function ResumeComparison({
               1 página, linguagem objetiva, foco em resultados.
             </p>
             <div className="flex justify-center gap-3">
-              <Button variant="outline" className="border-border/50">
+              <Button 
+                variant="outline" 
+                className="border-border/50"
+                onClick={() => handlePreview("base")}
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 Visualizar
               </Button>
-              <Button variant="default">
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF
+              <Button 
+                variant="default"
+                onClick={() => handleDownload("base")}
+                disabled={downloading === "base"}
+              >
+                {downloading === "base" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Baixando...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -211,18 +329,51 @@ export function ResumeComparison({
               Skills reorganizadas, bullets reescritos, título ajustado.
             </p>
             <div className="flex justify-center gap-3">
-              <Button variant="outline" className="border-border/50">
+              <Button 
+                variant="outline" 
+                className="border-border/50"
+                onClick={() => handlePreview("targeted")}
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 Visualizar
               </Button>
-              <Button variant="hero" className="shadow-glow">
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF
+              <Button 
+                variant="hero" 
+                className="shadow-glow"
+                onClick={() => handleDownload("targeted")}
+                disabled={downloading === "targeted"}
+              >
+                {downloading === "targeted" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Baixando...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
               </Button>
             </div>
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Preview Dialog */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{previewTitle}</DialogTitle>
+            <DialogDescription>
+              Pré-visualização do currículo gerado
+            </DialogDescription>
+          </DialogHeader>
+          <div className="prose prose-sm dark:prose-invert max-w-none mt-4 p-4 bg-muted/20 rounded-xl">
+            <ReactMarkdown>{previewContent}</ReactMarkdown>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
