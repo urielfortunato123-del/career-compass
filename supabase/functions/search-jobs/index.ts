@@ -5,15 +5,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SYSTEM_PROMPT = `Você é um especialista em recrutamento e mercado de trabalho brasileiro.
+const SYSTEM_PROMPT = `Você é um especialista internacional em recrutamento e mercado de trabalho.
 
-OBJETIVO: Fornecer uma lista realista de vagas de emprego baseada no perfil do candidato.
+OBJETIVO: Fornecer uma lista realista de vagas de emprego baseada no perfil do candidato e na LOCALIZAÇÃO ESPECIFICADA.
 
-IMPORTANTE: Como você não tem acesso a APIs de vagas em tempo real, você deve:
-1. Sugerir empresas REAIS que costumam contratar para esse cargo
-2. Indicar faixas salariais REALISTAS do mercado brasileiro
+IMPORTANTE - LOCALIZAÇÃO:
+1. Se o usuário especificar um PAÍS (ex: Brasil, Argentina, EUA, Portugal), busque APENAS vagas nesse país
+2. Se especificar uma CIDADE (ex: São Paulo, Lisboa, Buenos Aires), foque nessa cidade/região
+3. Se especificar "Qualquer país do mundo" ou "Mundial", sugira vagas REMOTAS INTERNACIONAIS
+4. ADAPTE a moeda do salário conforme o país (R$ para Brasil, USD para EUA, EUR para Europa, ARS para Argentina, etc.)
+5. Sugira sites de emprego LOCAIS daquele país/região
+
+IMPORTANTE - CONTEÚDO:
+1. Sugerir empresas REAIS que costumam contratar para esse cargo NAQUELE PAÍS/REGIÃO
+2. Indicar faixas salariais REALISTAS do mercado LOCAL
 3. Fornecer emails/sites de carreiras REAIS dessas empresas
-4. Indicar os melhores sites para buscar essas vagas
+4. Indicar os melhores sites para buscar vagas NAQUELE PAÍS
 
 SAÍDA (JSON):
 {
@@ -21,8 +28,8 @@ SAÍDA (JSON):
     {
       "title": "título da vaga",
       "company": "nome da empresa real",
-      "location": "cidade/estado ou remoto",
-      "salary_range": "R$ X.XXX - R$ X.XXX",
+      "location": "cidade/estado/país",
+      "salary_range": "faixa salarial na moeda local",
       "contact": "email ou link do site de carreiras",
       "description": "breve descrição do que esperar",
       "match_percentage": número de 0-100,
@@ -37,12 +44,12 @@ SAÍDA (JSON):
     }
   ],
   "market_insights": {
-    "average_salary": "faixa média do mercado",
+    "average_salary": "faixa média do mercado LOCAL na moeda correta",
     "demand_level": "alta/média/baixa",
-    "trending_skills": ["skills em alta"],
-    "best_cities": ["melhores cidades para a área"]
+    "trending_skills": ["skills em alta naquele mercado"],
+    "best_cities": ["melhores cidades para a área naquele país"]
   },
-  "application_tips": ["dicas para candidatura"],
+  "application_tips": ["dicas para candidatura naquele país"],
   "interview_preparation": ["dicas de preparação para entrevista"]
 }`;
 
@@ -82,8 +89,12 @@ ${JSON.stringify(resume, null, 2)}`;
 
     userMessage += `
 
-Forneça 5-8 oportunidades realistas com empresas brasileiras que costumam contratar para esse perfil.
-Inclua links reais de sites de carreiras e faixas salariais do mercado brasileiro.`;
+ATENÇÃO: A localização "${location_preference || "Qualquer/Remoto"}" é OBRIGATÓRIA. 
+Todas as vagas DEVEM ser para essa região/país específico.
+Adapte a moeda, os sites de emprego e as empresas para esse mercado.
+
+Forneça 5-8 oportunidades realistas com empresas que atuam nessa região.
+Inclua links reais de sites de carreiras e faixas salariais do mercado local.`;
 
     const models = [
       "google/gemini-2.0-flash-001",
