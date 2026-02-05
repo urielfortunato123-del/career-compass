@@ -50,7 +50,7 @@ RULES:
 
 Output ONLY the translated resume, nothing else.`;
 
-    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
+    const models = ["openai/gpt-oss-120b:free", "deepseek/deepseek-r1-0528:free"];
     let data;
 
     for (const model of models) {

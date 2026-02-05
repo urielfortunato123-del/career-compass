@@ -96,7 +96,7 @@ serve(async (req) => {
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
     // Models with fallback
-    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
+    const models = ["openai/gpt-oss-120b:free", "deepseek/deepseek-r1-0528:free"];
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
 

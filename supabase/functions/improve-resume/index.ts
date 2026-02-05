@@ -71,7 +71,7 @@ ${additional_details || "Nenhum detalhe adicional fornecido"}
 Analise o currículo e faça TODAS as melhorias necessárias para atingir no mínimo 95% de compatibilidade.`;
 
     // Models with fallback
-    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
+    const models = ["openai/gpt-oss-120b:free", "deepseek/deepseek-r1-0528:free"];
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
