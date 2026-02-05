@@ -50,37 +50,40 @@ RULES:
 
 Output ONLY the translated resume, nothing else.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://vagajusta.app",
-        "X-Title": "VagaJusta",
-      },
-      body: JSON.stringify({
-        model: "nvidia/nemotron-3-nano-30b-a3b:free",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content },
-        ],
-        temperature: 0.2,
-      }),
-    });
+    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
+    let data;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Model failed:", response.status, errorText);
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    for (const model of models) {
+      console.log(`Trying model: ${model}`);
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://vagajusta.app",
+          "X-Title": "VagaJusta",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content },
+          ],
+          temperature: 0.2,
+        }),
+      });
+
+      if (response.ok) {
+        data = await response.json();
+        console.log(`Success with ${model}`);
+        break;
       }
-      throw new Error("Failed to translate resume");
+      console.error(`${model} failed:`, response.status);
     }
 
-    const data = await response.json();
+    if (!data) {
+      throw new Error("All models failed");
+    }
 
     const translatedContent = data.choices?.[0]?.message?.content;
     

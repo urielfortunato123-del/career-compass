@@ -70,51 +70,50 @@ ${additional_details || "Nenhum detalhe adicional fornecido"}
 
 Analise o currículo e faça TODAS as melhorias necessárias para atingir no mínimo 95% de compatibilidade.`;
 
-    // Use fastest model with timeout
+    // Models with fallback
+    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+    let data;
     try {
-      console.log("Starting improvement with gemini-2.0-flash-001");
       const startTime = Date.now();
       
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vagajusta.app",
-          "X-Title": "VagaJusta",
-        },
-        body: JSON.stringify({
-          model: "nvidia/nemotron-3-nano-30b-a3b:free",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userMessage },
-          ],
-          temperature: 0.3,
-          max_tokens: 6000,
-        }),
-        signal: controller.signal,
-      });
+      for (const model of models) {
+        console.log(`Trying model: ${model}`);
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://vagajusta.app",
+            "X-Title": "VagaJusta",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: userMessage },
+            ],
+            temperature: 0.3,
+            max_tokens: 6000,
+          }),
+          signal: controller.signal,
+        });
 
-      clearTimeout(timeoutId);
-      console.log(`API call took ${Date.now() - startTime}ms`);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Model failed:", response.status, errorText);
-        
-        if (response.status === 429) {
-          return new Response(
-            JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        if (response.ok) {
+          data = await response.json();
+          console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
+          break;
         }
-        throw new Error(`API error: ${response.status}`);
+        console.error(`${model} failed:`, response.status);
       }
 
-      const data = await response.json();
+      if (!data) {
+        throw new Error("All models failed");
+      }
+
+      clearTimeout(timeoutId);
       const content = data.choices?.[0]?.message?.content;
     
     const jsonMatch = content.match(/\{[\s\S]*\}/);
