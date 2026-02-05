@@ -9,14 +9,26 @@ interface Improvement {
   reason: string;
 }
 
+interface TransitionAnalysis {
+  experience_level: 'none' | 'learning' | 'some';
+  has_courses: boolean;
+  courses_found: string[];
+  transferable_skills: string[];
+  recommended_title: string;
+  honest_assessment: string;
+}
+
 interface ImproveResumeResult {
   improved_resume: string;
   score_before: number;
   score_after: number;
+  is_career_transition: boolean;
+  transition_analysis?: TransitionAnalysis;
   improvements: Improvement[];
   tips: string[];
   missing_skills: string[];
   suggested_courses: string[];
+  entry_strategy?: string;
 }
 
 export function useImproveResume() {
@@ -29,6 +41,7 @@ export function useImproveResume() {
     target_role?: string;
     target_area?: string;
     additional_details?: string;
+    career_transition?: boolean;
   }) => {
     setLoading(true);
     try {
