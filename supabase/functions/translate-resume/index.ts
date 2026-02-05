@@ -50,60 +50,37 @@ RULES:
 
 Output ONLY the translated resume, nothing else.`;
 
-    const models = [
-      "google/gemini-2.0-flash-001",
-      "zhipu/glm-4.5-flash-250414"
-    ];
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://vagajusta.app",
+        "X-Title": "VagaJusta",
+      },
+      body: JSON.stringify({
+        model: "nvidia/nemotron-3-nano-30b-a3b:free",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content },
+        ],
+        temperature: 0.2,
+      }),
+    });
 
-    let data;
-    let lastError: { status: number; text: string } | null = null;
-
-    for (const model of models) {
-      console.log(`Trying model: ${model}`);
-      
-      try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content },
-            ],
-            temperature: 0.2,
-          }),
-        });
-
-        if (response.ok) {
-          data = await response.json();
-          console.log(`Success with model: ${model}`);
-          break;
-        }
-
-        const errorText = await response.text();
-        console.error(`Model ${model} failed:`, response.status, errorText);
-        lastError = { status: response.status, text: errorText };
-      } catch (err) {
-        console.error(`Model ${model} exception:`, err);
-        lastError = { status: 0, text: String(err) };
-      }
-    }
-
-    if (!data) {
-      if (lastError?.status === 429) {
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Model failed:", response.status, errorText);
+      if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      throw new Error("Failed to translate resume - all models failed");
+      throw new Error("Failed to translate resume");
     }
+
+    const data = await response.json();
 
     const translatedContent = data.choices?.[0]?.message?.content;
     
