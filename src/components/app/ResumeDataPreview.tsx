@@ -72,7 +72,6 @@ function SectionHeader({
   title, 
   count,
   isOpen,
-  onToggle,
   onEdit,
   isEditing 
 }: { 
@@ -80,16 +79,12 @@ function SectionHeader({
   title: string; 
   count?: number;
   isOpen: boolean;
-  onToggle: () => void;
   onEdit?: () => void;
   isEditing?: boolean;
 }) {
   return (
     <div className="flex items-center gap-2">
-      <button 
-        onClick={onToggle}
-        className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
-      >
+      <div className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
             <Icon className="w-4 h-4 text-primary-foreground" />
@@ -100,16 +95,19 @@ function SectionHeader({
           )}
         </div>
         {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          <ChevronUp className="w-4 h-4 text-muted-foreground transition-transform" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
         )}
-      </button>
+      </div>
       {onEdit && (
         <Button
           variant={isEditing ? "default" : "ghost"}
           size="icon"
-          onClick={onEdit}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
           className="h-10 w-10 shrink-0"
         >
           {isEditing ? <X className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
@@ -240,7 +238,6 @@ export function ResumeDataPreview({ data, onDataChange, editable = true }: Resum
               icon={User} 
               title="Dados Pessoais" 
               isOpen={openSections.contact}
-              onToggle={() => toggleSection("contact")}
               onEdit={editable ? () => toggleEditing("contact") : undefined}
               isEditing={editingSections.contact}
             />
@@ -352,7 +349,6 @@ export function ResumeDataPreview({ data, onDataChange, editable = true }: Resum
                 title="Experiência Profissional" 
                 count={displayData.experiences?.length}
                 isOpen={openSections.experiences}
-                onToggle={() => toggleSection("experiences")}
                 onEdit={editable ? () => toggleEditing("experiences") : undefined}
                 isEditing={editingSections.experiences}
               />
@@ -455,7 +451,6 @@ export function ResumeDataPreview({ data, onDataChange, editable = true }: Resum
                 title="Formação Acadêmica" 
                 count={displayData.education?.length}
                 isOpen={openSections.education}
-                onToggle={() => toggleSection("education")}
                 onEdit={editable ? () => toggleEditing("education") : undefined}
                 isEditing={editingSections.education}
               />
@@ -525,7 +520,6 @@ export function ResumeDataPreview({ data, onDataChange, editable = true }: Resum
                 title="Competências" 
                 count={(displayData.technical_skills?.length || 0) + (displayData.soft_skills?.length || 0)}
                 isOpen={openSections.skills}
-                onToggle={() => toggleSection("skills")}
                 onEdit={editable ? () => toggleEditing("skills") : undefined}
                 isEditing={editingSections.skills}
               />
@@ -641,7 +635,6 @@ export function ResumeDataPreview({ data, onDataChange, editable = true }: Resum
                 title="Idiomas" 
                 count={displayData.languages?.length}
                 isOpen={openSections.languages}
-                onToggle={() => toggleSection("languages")}
                 onEdit={editable ? () => toggleEditing("languages") : undefined}
                 isEditing={editingSections.languages}
               />
@@ -697,7 +690,6 @@ export function ResumeDataPreview({ data, onDataChange, editable = true }: Resum
                 title="Cursos e Certificações" 
                 count={displayData.courses?.length}
                 isOpen={openSections.courses}
-                onToggle={() => toggleSection("courses")}
               />
             </div>
           </CollapsibleTrigger>
