@@ -63,37 +63,40 @@ serve(async (req) => {
       ? `Analise esta vaga:\n\n${description}`
       : `Analise uma vaga para o cargo: ${title}${area ? ` na área de ${area}` : ''}`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://vagajusta.app",
-        "X-Title": "VagaJusta",
-      },
-      body: JSON.stringify({
-        model: "nvidia/nemotron-3-nano-30b-a3b:free",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userMessage },
-        ],
-        temperature: 0.3,
-      }),
-    });
+    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
+    let data;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Model failed:", response.status, errorText);
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+    for (const model of models) {
+      console.log(`Trying model: ${model}`);
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://vagajusta.app",
+          "X-Title": "VagaJusta",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userMessage },
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (response.ok) {
+        data = await response.json();
+        console.log(`Success with ${model}`);
+        break;
       }
-      throw new Error("Failed to analyze job");
+      console.error(`${model} failed:`, response.status);
     }
 
-    const data = await response.json();
+    if (!data) {
+      throw new Error("All models failed");
+    }
 
     const content = data.choices?.[0]?.message?.content;
     

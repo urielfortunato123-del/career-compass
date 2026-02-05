@@ -95,63 +95,55 @@ serve(async (req) => {
 
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
-    // Use fastest model with timeout for speed
+    // Models with fallback
+    const models = ["nvidia/nemotron-3-nano-30b-a3b:free", "xiaomi/mimo-v2-flash"];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
+    let data;
     try {
-      console.log("Starting parse with gemini-2.0-flash-001");
       const startTime = Date.now();
       
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vagajusta.app",
-          "X-Title": "VagaJusta",
-        },
-        body: JSON.stringify({
-          model: "nvidia/nemotron-3-nano-30b-a3b:free",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userMessage },
-          ],
-          temperature: 0.1,
-          max_tokens: 4000,
-        }),
-        signal: controller.signal,
-      });
+      for (const model of models) {
+        console.log(`Trying model: ${model}`);
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://vagajusta.app",
+            "X-Title": "VagaJusta",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: userMessage },
+            ],
+            temperature: 0.1,
+            max_tokens: 4000,
+          }),
+          signal: controller.signal,
+        });
 
-      clearTimeout(timeoutId);
-      console.log(`API call took ${Date.now() - startTime}ms`);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Model failed:", response.status, errorText);
-        
-        if (response.status === 402) {
-          return new Response(
-            JSON.stringify({ error: "Créditos insuficientes. Por favor, adicione créditos à sua conta." }),
-            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        if (response.ok) {
+          data = await response.json();
+          console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
+          break;
         }
-        if (response.status === 429) {
-          return new Response(
-            JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        throw new Error(`API error: ${response.status}`);
+        console.error(`${model} failed:`, response.status);
       }
 
-      const data = await response.json();
+      if (!data) {
+        throw new Error("All models failed");
+      }
 
+      clearTimeout(timeoutId);
       const content = data.choices?.[0]?.message?.content;
     
-    if (!content) {
-      throw new Error("Empty response from AI");
-    }
+      if (!content) {
+        throw new Error("Empty response from AI");
+      }
     
     // Parse JSON from response - handle markdown code blocks
     let jsonStr = content;
