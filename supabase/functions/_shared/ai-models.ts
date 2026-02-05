@@ -4,6 +4,7 @@
 export const AI_MODELS = [
   "google/gemini-2.0-flash-001",           // Ultra-fast
   "google/gemini-2.5-flash-preview-05-20", // Very fast
+  "google/gemma-3n-e2b-it:free",           // New Gemma model
   "zhipu/glm-4.5-flash-250414",            // Fast Chinese model
   "mistralai/mistral-small-3.1-24b-instruct:free",
   "xiaomi/mimo-v2-flash",                   // Fast

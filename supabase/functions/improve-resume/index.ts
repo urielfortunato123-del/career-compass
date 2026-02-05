@@ -151,6 +151,7 @@ Analise o currículo e faça TODAS as melhorias necessárias para atingir no mí
     const models = [
       "google/gemini-2.0-flash-001",
       "google/gemini-2.5-flash-preview-05-20",
+      "google/gemma-3n-e2b-it:free",
       "zhipu/glm-4.5-flash-250414",
       "mistralai/mistral-small-3.1-24b-instruct:free",
       "xiaomi/mimo-v2-flash"
