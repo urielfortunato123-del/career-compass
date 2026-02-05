@@ -50,7 +50,7 @@ RULES:
 
 Output ONLY the translated resume, nothing else.`;
 
-    const models = ["openai/gpt-oss-120b:free", "mistral/mistral-small-3.1-24b-instruct:free"];
+    const models = ["openai/gpt-oss-120b:free", "mistralai/mistral-small-3.1-24b-instruct:free"];
     let data;
 
     for (const model of models) {
