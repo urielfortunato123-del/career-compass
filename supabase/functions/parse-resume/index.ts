@@ -96,7 +96,7 @@ serve(async (req) => {
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
     // Models with fallback
-    const models = ["openai/gpt-oss-120b:free", "mistral/mistral-small-3.1-24b-instruct:free"];
+    const models = ["openai/gpt-oss-120b:free", "mistralai/mistral-small-3.1-24b-instruct:free"];
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000);
 

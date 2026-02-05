@@ -63,7 +63,7 @@ serve(async (req) => {
       ? `Analise esta vaga:\n\n${description}`
       : `Analise uma vaga para o cargo: ${title}${area ? ` na área de ${area}` : ''}`;
 
-    const models = ["openai/gpt-oss-120b:free", "mistral/mistral-small-3.1-24b-instruct:free"];
+    const models = ["openai/gpt-oss-120b:free", "mistralai/mistral-small-3.1-24b-instruct:free"];
     let data;
 
     for (const model of models) {
