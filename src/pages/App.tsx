@@ -9,16 +9,21 @@ import { ResumeComparison } from "@/components/app/ResumeComparison";
 import { ActionPlan } from "@/components/app/ActionPlan";
 import { CareerTransitionToggle } from "@/components/app/CareerTransitionToggle";
 import { ResumeDownload } from "@/components/app/ResumeDownload";
+import { ResumeImprover } from "@/components/app/ResumeImprover";
+import { JobSearch } from "@/components/app/JobSearch";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, FileText, Search, BarChart3, Sparkles } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, ArrowRight, FileText, Search, BarChart3, Sparkles, Briefcase, Wand2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-type Step = "upload" | "job" | "results";
+type Step = "upload" | "improve" | "job" | "results" | "jobs";
 
 const steps = [
   { id: "upload" as const, label: "Currículo", icon: FileText },
+  { id: "improve" as const, label: "Melhorar", icon: Wand2 },
   { id: "job" as const, label: "Vaga", icon: Search },
   { id: "results" as const, label: "Resultados", icon: BarChart3 },
+  { id: "jobs" as const, label: "Vagas", icon: Briefcase },
 ];
 
 export default function AppPage() {
@@ -32,6 +37,8 @@ export default function AppPage() {
   const [editedStructuredData, setEditedStructuredData] = useState<Record<string, unknown> | null>(null);
   const [jobAnalyzed, setJobAnalyzed] = useState(false);
   const [generatedResume, setGeneratedResume] = useState<string>("");
+  const [improvedResume, setImprovedResume] = useState<any>(null);
+  const [activeJobTab, setActiveJobTab] = useState<"analyze" | "improve">("analyze");
 
   const resumeUploaded = !!resumeData;
 
@@ -43,15 +50,25 @@ export default function AppPage() {
 
   const nextStep = () => {
     if (currentStep === "upload" && resumeUploaded) {
+      setCurrentStep("improve");
+    } else if (currentStep === "improve") {
       setCurrentStep("job");
     } else if (currentStep === "job" && jobAnalyzed) {
       setCurrentStep("results");
+    } else if (currentStep === "results") {
+      setCurrentStep("jobs");
     }
   };
 
   const prevStep = () => {
-    if (currentStep === "job") setCurrentStep("upload");
+    if (currentStep === "improve") setCurrentStep("upload");
+    if (currentStep === "job") setCurrentStep("improve");
     if (currentStep === "results") setCurrentStep("job");
+    if (currentStep === "jobs") setCurrentStep("results");
+  };
+
+  const getResumeData = () => {
+    return editedStructuredData || resumeData?.structuredData || {};
   };
 
   return (
@@ -69,8 +86,8 @@ export default function AppPage() {
       <main className="flex-1 py-8 pt-28 relative z-10">
         <div className="container max-w-4xl">
           {/* Step Indicator */}
-          <div className="mb-10">
-            <div className="flex items-center justify-between relative">
+          <div className="mb-10 overflow-x-auto pb-2">
+            <div className="flex items-center justify-between relative min-w-[500px]">
               {/* Progress Line Background */}
               <div className="absolute top-5 left-0 right-0 h-0.5 bg-border/50" />
               
@@ -99,7 +116,7 @@ export default function AppPage() {
                     }`}
                   >
                     <div
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 ${
                         isActive
                           ? "gradient-primary text-primary-foreground shadow-glow scale-110"
                           : isCompleted
@@ -107,10 +124,10 @@ export default function AppPage() {
                           : "glass-card text-muted-foreground"
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
                     <span
-                      className={`mt-3 text-sm font-medium transition-colors ${
+                      className={`mt-2 md:mt-3 text-xs md:text-sm font-medium transition-colors ${
                         isActive ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground"
                       }`}
                     >
@@ -129,7 +146,7 @@ export default function AppPage() {
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
                     <Sparkles className="w-4 h-4" />
-                    Passo 1 de 3
+                    Passo 1 de 5
                   </div>
                   <h1 className="text-3xl font-bold mb-3">Envie seu currículo</h1>
                   <p className="text-muted-foreground max-w-md mx-auto">
@@ -169,7 +186,50 @@ export default function AppPage() {
                     onClick={nextStep}
                     className="shadow-glow"
                   >
-                    Próximo: Informar Vaga
+                    Próximo: Melhorar Currículo
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {currentStep === "improve" && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+                    <Wand2 className="w-4 h-4" />
+                    Passo 2 de 5
+                  </div>
+                  <h1 className="text-3xl font-bold mb-3">Melhore seu Currículo</h1>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Nossa IA vai otimizar seu currículo para atingir 95%+ de compatibilidade
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-3xl p-8 border border-border/50">
+                  <ResumeImprover 
+                    resumeData={getResumeData() as Record<string, unknown>}
+                    onImproved={(result) => {
+                      setImprovedResume(result);
+                      if (result.improved_resume) {
+                        setGeneratedResume(result.improved_resume);
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className="flex justify-between">
+                  <Button variant="outline" size="lg" onClick={prevStep} className="border-border/50">
+                    <ArrowLeft className="w-5 h-5" />
+                    Voltar
+                  </Button>
+                  <Button 
+                    variant="hero" 
+                    size="lg"
+                    onClick={nextStep}
+                    className="shadow-glow"
+                  >
+                    Próximo: Analisar Vaga
                     <ArrowRight className="w-5 h-5" />
                   </Button>
                 </div>
@@ -181,7 +241,7 @@ export default function AppPage() {
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
                     <Sparkles className="w-4 h-4" />
-                    Passo 2 de 3
+                    Passo 3 de 5
                   </div>
                   <h1 className="text-3xl font-bold mb-3">Analise a vaga</h1>
                   <p className="text-muted-foreground max-w-md mx-auto">
@@ -217,7 +277,7 @@ export default function AppPage() {
                 <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 text-success text-sm font-medium mb-4">
                     <Sparkles className="w-4 h-4" />
-                    Análise Completa
+                    Passo 4 de 5
                   </div>
                   <h1 className="text-3xl font-bold mb-3">Seus Resultados</h1>
                   <p className="text-muted-foreground max-w-md mx-auto">
@@ -233,7 +293,10 @@ export default function AppPage() {
                   </div>
                   <div className="lg:col-span-2 space-y-8">
                     <div className="glass-card rounded-3xl p-6 border border-border/50">
-                      <ResumeComparison />
+                      <ResumeComparison 
+                        baseResumeMarkdown={generatedResume || improvedResume?.improved_resume}
+                        targetedResumeMarkdown={generatedResume || improvedResume?.improved_resume}
+                      />
                     </div>
                     <div className="glass-card rounded-3xl p-6 border border-border/50">
                       <ActionPlan />
@@ -246,8 +309,43 @@ export default function AppPage() {
                     <ArrowLeft className="w-5 h-5" />
                     Voltar
                   </Button>
+                  <Button 
+                    variant="hero" 
+                    size="lg"
+                    onClick={nextStep}
+                    className="shadow-glow"
+                  >
+                    Buscar Vagas
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {currentStep === "jobs" && (
+              <div className="space-y-8">
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 text-success text-sm font-medium mb-4">
+                    <Briefcase className="w-4 h-4" />
+                    Passo 5 de 5
+                  </div>
+                  <h1 className="text-3xl font-bold mb-3">Encontre sua Vaga</h1>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    A IA vai buscar vagas compatíveis com seu perfil, incluindo salário e contato
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-3xl p-8 border border-border/50">
+                  <JobSearch resumeData={getResumeData() as Record<string, unknown>} />
+                </div>
+
+                <div className="flex justify-between">
+                  <Button variant="outline" size="lg" onClick={prevStep} className="border-border/50">
+                    <ArrowLeft className="w-5 h-5" />
+                    Voltar
+                  </Button>
                   <ResumeDownload 
-                    resumeContent={generatedResume || "# Currículo ATS\n\nGere seu currículo otimizado para visualizar aqui."} 
+                    resumeContent={generatedResume || improvedResume?.improved_resume || "# Currículo ATS\n\nGere seu currículo otimizado para visualizar aqui."} 
                     fileName={`curriculo-${user?.email?.split("@")[0] || "ats"}`}
                   />
                 </div>
