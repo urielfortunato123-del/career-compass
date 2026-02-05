@@ -49,15 +49,6 @@ export function usePDFParser() {
       return null;
     }
 
-    if (!user) {
-      toast({
-        title: "Não autenticado",
-        description: "Faça login para enviar seu currículo.",
-        variant: "destructive",
-      });
-      return null;
-    }
-
     setLoading(true);
     setProgress(null);
     setResult(null);
