@@ -95,17 +95,25 @@ serve(async (req) => {
 
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
-    // Models with fallback
-    const models = ["openai/gpt-oss-120b:free", "mistralai/mistral-small-3.1-24b-instruct:free"];
+    // All models run in parallel - first response wins
+    const models = [
+      "openai/gpt-oss-120b:free",
+      "mistralai/mistral-small-3.1-24b-instruct:free",
+      "nvidia/nemotron-3-nano-30b-a3b:free",
+      "xiaomi/mimo-v2-flash",
+      "deepseek/deepseek-r1-0528:free"
+    ];
+    
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     let data;
     try {
       const startTime = Date.now();
       
-      for (const model of models) {
-        console.log(`Trying model: ${model}`);
+      // Race all models - first successful response wins
+      const fetchPromises = models.map(async (model) => {
+        console.log(`Starting model: ${model}`);
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -126,17 +134,19 @@ ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
           signal: controller.signal,
         });
 
-        if (response.ok) {
-          data = await response.json();
-          console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
-          break;
+        if (!response.ok) {
+          throw new Error(`${model} failed: ${response.status}`);
         }
-        console.error(`${model} failed:`, response.status);
-      }
+        
+        const result = await response.json();
+        console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
+        return { model, data: result };
+      });
 
-      if (!data) {
-        throw new Error("All models failed");
-      }
+      // First successful response wins
+      const winner = await Promise.any(fetchPromises);
+      data = winner.data;
+      console.log(`Winner: ${winner.model}`);
 
       clearTimeout(timeoutId);
       const content = data.choices?.[0]?.message?.content;
