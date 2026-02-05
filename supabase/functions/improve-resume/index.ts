@@ -71,7 +71,7 @@ ${additional_details || "Nenhum detalhe adicional fornecido"}
 Analise o currículo e faça TODAS as melhorias necessárias para atingir no mínimo 95% de compatibilidade.`;
 
     // Models with fallback
-    const models = ["openai/gpt-oss-120b:free", "deepseek/deepseek-r1-0528:free"];
+    const models = ["openai/gpt-oss-120b:free", "mistral/mistral-small-3.1-24b-instruct:free"];
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
