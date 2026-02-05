@@ -10,13 +10,20 @@ import {
   TrendingUp,
   Building2,
   Lightbulb,
-  GraduationCap,
-  CheckCircle
+  CheckCircle,
+  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchJobs } from "@/hooks/useSearchJobs";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface JobSearchProps {
   resumeData?: Record<string, unknown>;
@@ -26,15 +33,41 @@ export function JobSearch({ resumeData }: JobSearchProps) {
   const [targetRole, setTargetRole] = useState("");
   const [targetArea, setTargetArea] = useState("");
   const [locationPreference, setLocationPreference] = useState("");
+  const [country, setCountry] = useState("brasil");
+  const [customLocation, setCustomLocation] = useState("");
   const [salaryExpectation, setSalaryExpectation] = useState("");
   const { loading, result, searchJobs } = useSearchJobs();
+
+  const getLocationString = () => {
+    if (country === "custom" && customLocation) {
+      return customLocation;
+    }
+    const countryNames: Record<string, string> = {
+      brasil: "Brasil",
+      mundial: "Qualquer país do mundo",
+      eua: "Estados Unidos",
+      portugal: "Portugal",
+      canada: "Canadá",
+      alemanha: "Alemanha",
+      argentina: "Argentina",
+      paraguai: "Paraguai",
+      uruguai: "Uruguai",
+      chile: "Chile",
+      mexico: "México",
+      espanha: "Espanha",
+      uk: "Reino Unido",
+      irlanda: "Irlanda",
+    };
+    const countryName = countryNames[country] || country;
+    return locationPreference ? `${locationPreference}, ${countryName}` : countryName;
+  };
 
   const handleSearch = async () => {
     await searchJobs({
       resume: resumeData,
       target_role: targetRole,
       target_area: targetArea,
-      location_preference: locationPreference,
+      location_preference: getLocationString(),
       salary_expectation: salaryExpectation,
     });
   };
@@ -218,25 +251,72 @@ export function JobSearch({ resumeData }: JobSearchProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">Localização</label>
-            <Input
-              placeholder="Ex: São Paulo, Remoto..."
-              value={locationPreference}
-              onChange={(e) => setLocationPreference(e.target.value)}
-              className="bg-muted/20 border-border/50 focus:border-primary"
-            />
+        {/* Location Section */}
+        <div className="p-4 rounded-2xl bg-muted/10 border border-border/30 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Globe className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium">Onde você quer trabalhar?</span>
           </div>
-          <div>
-            <label className="text-sm font-medium mb-2 block">Expectativa Salarial</label>
-            <Input
-              placeholder="Ex: R$ 8.000 - R$ 12.000"
-              value={salaryExpectation}
-              onChange={(e) => setSalaryExpectation(e.target.value)}
-              className="bg-muted/20 border-border/50 focus:border-primary"
-            />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">País/Região</label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger className="bg-muted/20 border-border/50">
+                  <SelectValue placeholder="Selecione o país" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="brasil">🇧🇷 Brasil</SelectItem>
+                  <SelectItem value="mundial">🌍 Todo o Mundo</SelectItem>
+                  <SelectItem value="eua">🇺🇸 Estados Unidos</SelectItem>
+                  <SelectItem value="portugal">🇵🇹 Portugal</SelectItem>
+                  <SelectItem value="canada">🇨🇦 Canadá</SelectItem>
+                  <SelectItem value="alemanha">🇩🇪 Alemanha</SelectItem>
+                  <SelectItem value="uk">🇬🇧 Reino Unido</SelectItem>
+                  <SelectItem value="irlanda">🇮🇪 Irlanda</SelectItem>
+                  <SelectItem value="espanha">🇪🇸 Espanha</SelectItem>
+                  <SelectItem value="argentina">🇦🇷 Argentina</SelectItem>
+                  <SelectItem value="paraguai">🇵🇾 Paraguai</SelectItem>
+                  <SelectItem value="uruguai">🇺🇾 Uruguai</SelectItem>
+                  <SelectItem value="chile">🇨🇱 Chile</SelectItem>
+                  <SelectItem value="mexico">🇲🇽 México</SelectItem>
+                  <SelectItem value="custom">📍 Outro local...</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {country === "custom" ? (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Local específico</label>
+                <Input
+                  placeholder="Ex: Japão, Dubai, Austrália..."
+                  value={customLocation}
+                  onChange={(e) => setCustomLocation(e.target.value)}
+                  className="bg-muted/20 border-border/50 focus:border-primary"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Cidade/Estado (opcional)</label>
+                <Input
+                  placeholder={country === "brasil" ? "Ex: São Paulo, Remoto..." : "Ex: Lisboa, Remoto..."}
+                  value={locationPreference}
+                  onChange={(e) => setLocationPreference(e.target.value)}
+                  className="bg-muted/20 border-border/50 focus:border-primary"
+                />
+              </div>
+            )}
           </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium mb-2 block">Expectativa Salarial</label>
+          <Input
+            placeholder={country === "brasil" ? "Ex: R$ 8.000 - R$ 12.000" : "Ex: $5,000 - $8,000 USD"}
+            value={salaryExpectation}
+            onChange={(e) => setSalaryExpectation(e.target.value)}
+            className="bg-muted/20 border-border/50 focus:border-primary"
+          />
         </div>
       </div>
 
