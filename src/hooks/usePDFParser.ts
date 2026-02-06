@@ -108,19 +108,46 @@ export function usePDFParser() {
         // Continue anyway - we have the text
       }
 
-      // Step 3: Send to AI for structured parsing
+      // Step 3: Send to AI for structured parsing with retry
       setProgress({
         stage: "complete",
-        progress: 85,
+        progress: 80,
         message: "Analisando conteúdo com IA...",
       });
 
-      const { data: structuredData, error: aiParseError } = await supabase.functions.invoke("parse-resume", {
-        body: { text: parseResult.text },
-      });
+      let structuredData = null;
+      let aiParseError = null;
+      
+      // Try up to 2 times
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        if (attempt > 1) {
+          setProgress({
+            stage: "complete",
+            progress: 82,
+            message: "Tentando novamente...",
+          });
+        }
+        
+        const { data, error } = await supabase.functions.invoke("parse-resume", {
+          body: { text: parseResult.text.substring(0, 12000) }, // Limit text size
+        });
+        
+        if (!error && data) {
+          structuredData = data;
+          aiParseError = null;
+          break;
+        }
+        
+        aiParseError = error;
+        console.error(`Parse attempt ${attempt} failed:`, error);
+        
+        if (attempt < 2) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
 
       if (aiParseError) {
-        console.error("Parse error:", aiParseError);
+        console.error("All parse attempts failed:", aiParseError);
         toast({
           title: "Aviso",
           description: "Texto extraído, mas análise de IA falhou. Dados básicos salvos.",

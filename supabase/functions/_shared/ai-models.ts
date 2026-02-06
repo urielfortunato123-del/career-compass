@@ -2,7 +2,7 @@
 // Using Google Gemini 2.0 Flash directly
 
 export const GEMINI_MODEL = "gemini-2.0-flash";
-export const DEFAULT_TIMEOUT_MS = 25000;
+export const DEFAULT_TIMEOUT_MS = 55000; // 55s to stay under edge function limit
 
 export interface AIRequestConfig {
   systemPrompt: string;
@@ -25,11 +25,11 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
   }
 
   const controller = new AbortController();
-  const timeoutMs = config.timeoutMs || DEFAULT_TIMEOUT_MS;
+  const timeoutMs = Math.min(config.timeoutMs || DEFAULT_TIMEOUT_MS, 55000);
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    console.log(`Calling Google Gemini: ${GEMINI_MODEL}`);
+    console.log(`Calling Google Gemini: ${GEMINI_MODEL} (timeout: ${timeoutMs}ms)`);
     
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GOOGLE_API_KEY}`,
@@ -61,6 +61,14 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Gemini error: ${response.status}`, errorText);
+      
+      if (response.status === 429) {
+        throw new Error("Limite de requisições excedido. Tente novamente em alguns segundos.");
+      }
+      if (response.status === 503 || response.status === 500) {
+        throw new Error("Serviço temporariamente indisponível. Tente novamente.");
+      }
+      
       throw new Error(`AI request failed: ${response.status}`);
     }
 
@@ -71,7 +79,7 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
 
     if (!content) {
       console.error("Empty response from Gemini:", JSON.stringify(result));
-      throw new Error("Empty response from AI");
+      throw new Error("Resposta vazia da IA. Tente novamente.");
     }
 
     console.log(`Success with ${GEMINI_MODEL} in ${responseTimeMs}ms`);
@@ -83,7 +91,8 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Request timeout - try again");
+      console.error(`Timeout after ${timeoutMs}ms`);
+      throw new Error("Tempo limite excedido. O servidor está ocupado, tente novamente.");
     }
     throw error;
   }
@@ -101,13 +110,13 @@ export function extractJSON(content: string): Record<string, unknown> {
   const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     console.error("Failed to extract JSON from response:", content.substring(0, 500));
-    throw new Error("Failed to parse AI response - no JSON found");
+    throw new Error("Falha ao processar resposta da IA");
   }
 
   try {
     return JSON.parse(jsonMatch[0]);
   } catch (parseError) {
     console.error("JSON parse error:", parseError, jsonMatch[0].substring(0, 500));
-    throw new Error("Failed to parse AI response - invalid JSON");
+    throw new Error("Falha ao processar resposta da IA - JSON inválido");
   }
 }
