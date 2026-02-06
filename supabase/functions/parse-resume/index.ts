@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace, extractJSON } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,117 +87,38 @@ serve(async (req) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
-
     const userMessage = `Extraia os dados deste currículo:
 
 ${text.substring(0, 15000)}`; // Limit text to prevent token overflow
 
-    // All models run in parallel - first response wins
-    const models = [
-      "openai/gpt-oss-120b:free",
-      "mistralai/mistral-small-3.1-24b-instruct:free",
-      "nvidia/nemotron-3-nano-30b-a3b:free",
-      "xiaomi/mimo-v2-flash",
-      "deepseek/deepseek-r1-0528:free"
-    ];
+    const aiResponse = await callAIWithRace({
+      systemPrompt: SYSTEM_PROMPT,
+      userMessage,
+      temperature: 0.1,
+      maxTokens: 4000,
+      timeoutMs: 30000,
+    });
+
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const result = extractJSON(aiResponse.content);
+    console.log("Resume parsed successfully - found", (result as any).technical_skills?.length || 0, "skills");
 
-    let data;
-    try {
-      const startTime = Date.now();
-      
-      // Race all models - first successful response wins
-      const fetchPromises = models.map(async (model) => {
-        console.log(`Starting model: ${model}`);
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMessage },
-            ],
-            temperature: 0.1,
-            max_tokens: 4000,
-          }),
-          signal: controller.signal,
-        });
+    return new Response(
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
 
-        if (!response.ok) {
-          throw new Error(`${model} failed: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
-        return { model, data: result };
-      });
-
-      // First successful response wins
-      const winner = await Promise.any(fetchPromises);
-      data = winner.data;
-      console.log(`Winner: ${winner.model}`);
-
-      clearTimeout(timeoutId);
-      const content = data.choices?.[0]?.message?.content;
-    
-      if (!content) {
-        throw new Error("Empty response from AI");
-      }
-    
-    // Parse JSON from response - handle markdown code blocks
-    let jsonStr = content;
-    
-    // Remove markdown code blocks if present
-    const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      jsonStr = codeBlockMatch[1];
-    }
-    
-    // Extract JSON object
-    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("Failed to extract JSON from response:", content.substring(0, 500));
-      throw new Error("Failed to parse resume extraction - no JSON found");
-    }
-
-    let result;
-    try {
-      result = JSON.parse(jsonMatch[0]);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError, jsonMatch[0].substring(0, 500));
-      throw new Error("Failed to parse resume extraction - invalid JSON");
-    }
-
-      console.log("Resume parsed successfully - found", result.technical_skills?.length || 0, "skills");
-
-      return new Response(
-        JSON.stringify(result),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      if (fetchError instanceof Error && fetchError.name === "AbortError") {
-        return new Response(
-          JSON.stringify({ error: "Tempo limite excedido. Tente com um currículo menor." }),
-          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw fetchError;
-    }
   } catch (error) {
     console.error("parse-resume error:", error);
+    
+    if (error instanceof Error && error.message.includes("timeout")) {
+      return new Response(
+        JSON.stringify({ error: "Tempo limite excedido. Tente com um currículo menor." }),
+        { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Erro ao processar currículo" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
