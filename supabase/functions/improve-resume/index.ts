@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace, extractJSON } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -108,12 +109,6 @@ serve(async (req) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
-
-    // Escolhe o prompt baseado no modo
     const systemPrompt = career_transition ? CAREER_TRANSITION_PROMPT : SAME_AREA_PROMPT;
 
     const userMessage = career_transition 
@@ -147,83 +142,23 @@ ${additional_details || "Nenhum detalhe adicional fornecido"}
 
 Analise o currículo e faça TODAS as melhorias necessárias para atingir no mínimo 95% de compatibilidade.`;
 
-    // All models run in parallel - first response wins (optimized for speed)
-    const models = [
-      "google/gemini-2.0-flash-001",
-      "google/gemini-2.5-flash-preview-05-20",
-      "google/gemma-3n-e2b-it:free",
-      "zhipu/glm-4.5-flash-250414",
-      "mistralai/mistral-small-3.1-24b-instruct:free",
-      "xiaomi/mimo-v2-flash"
-    ];
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    // Use shared AI function - Gemini primary, Ollama fallback
+    const aiResponse = await callAIWithRace({
+      systemPrompt,
+      userMessage,
+      temperature: 0.4,
+      maxTokens: 8000,
+      timeoutMs: 25000,
+    });
 
-    let data;
-    try {
-      const startTime = Date.now();
-      
-      // Race all models - first successful response wins
-      const fetchPromises = models.map(async (model) => {
-        console.log(`Starting model: ${model}`);
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userMessage },
-            ],
-            temperature: 0.4,
-            max_tokens: 8000,
-          }),
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`${model} failed: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
-        return { model, data: result };
-      });
-
-      // First successful response wins
-      const winner = await Promise.any(fetchPromises);
-      data = winner.data;
-      console.log(`Winner: ${winner.model}`);
-
-      clearTimeout(timeoutId);
-      const content = data.choices?.[0]?.message?.content;
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
     
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Failed to parse resume improvement");
-    }
+    const result = extractJSON(aiResponse.content);
 
-      const result = JSON.parse(jsonMatch[0]);
-
-      return new Response(
-        JSON.stringify(result),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      if (fetchError instanceof Error && fetchError.name === "AbortError") {
-        return new Response(
-          JSON.stringify({ error: "Tempo limite excedido. Tente novamente." }),
-          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw fetchError;
-    }
+    return new Response(
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.error("improve-resume error:", error);
     return new Response(
