@@ -1,15 +1,8 @@
 // Shared AI model configuration for all edge functions
 // Ollama is the PRIMARY model, OpenRouter models are FALLBACK (race condition)
 
-export const OPENROUTER_MODELS = [
-  "google/gemini-2.0-flash-001",           // Ultra-fast
-  "google/gemini-2.5-flash-preview-05-20", // Very fast
-  "google/gemma-3n-e2b-it:free",           // New Gemma model
-  "zhipu/glm-4.5-flash-250414",            // Fast Chinese model
-  "mistralai/mistral-small-3.1-24b-instruct:free",
-  "xiaomi/mimo-v2-flash",                   // Fast
-  "deepseek/deepseek-r1-0528:free"
-] as const;
+// Single fallback model
+export const OPENROUTER_MODEL = "google/gemini-2.0-flash-001";
 
 export const DEFAULT_TIMEOUT_MS = 20000;
 export const EXTENDED_TIMEOUT_MS = 25000;
@@ -38,9 +31,9 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
     return ollamaResult;
   }
 
-  // Fallback to OpenRouter race
+  // Fallback to OpenRouter (single model)
   console.log("Ollama failed or unavailable, falling back to OpenRouter...");
-  return await callOpenRouterRace(config, startTime);
+  return await callOpenRouterFallback(config, startTime);
 }
 
 // Ollama primary call
@@ -124,8 +117,8 @@ async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
   }
 }
 
-// OpenRouter fallback with race condition
-async function callOpenRouterRace(config: AIRequestConfig, startTime: number): Promise<{
+// OpenRouter fallback - single model
+async function callOpenRouterFallback(config: AIRequestConfig, startTime: number): Promise<{
   content: string;
   model: string;
   responseTimeMs: number;
@@ -140,51 +133,46 @@ async function callOpenRouterRace(config: AIRequestConfig, startTime: number): P
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const fetchPromises = OPENROUTER_MODELS.map(async (model) => {
-      console.log(`Starting OpenRouter model: ${model}`);
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://vagajusta.app",
-          "X-Title": "VagaJusta",
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: "system", content: config.systemPrompt },
-            { role: "user", content: config.userMessage },
-          ],
-          temperature: config.temperature ?? 0.2,
-          max_tokens: config.maxTokens ?? 4000,
-        }),
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`${model} failed: ${response.status}`);
-      }
-
-      const result = await response.json();
-      const responseTimeMs = Date.now() - startTime;
-      console.log(`Success with ${model} in ${responseTimeMs}ms`);
-      
-      return { model, data: result, responseTimeMs };
+    console.log(`Calling OpenRouter: ${OPENROUTER_MODEL}`);
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://vagajusta.app",
+        "X-Title": "VagaJusta",
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [
+          { role: "system", content: config.systemPrompt },
+          { role: "user", content: config.userMessage },
+        ],
+        temperature: config.temperature ?? 0.2,
+        max_tokens: config.maxTokens ?? 4000,
+      }),
+      signal: controller.signal,
     });
 
-    const winner = await Promise.any(fetchPromises);
-    console.log(`OpenRouter winner: ${winner.model}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`OpenRouter failed: ${response.status}`, errorText);
+      throw new Error(`OpenRouter failed: ${response.status}`);
+    }
 
-    const content = winner.data.choices?.[0]?.message?.content;
+    const result = await response.json();
+    const responseTimeMs = Date.now() - startTime;
+    console.log(`Success with ${OPENROUTER_MODEL} in ${responseTimeMs}ms`);
+
+    const content = result.choices?.[0]?.message?.content;
     if (!content) {
       throw new Error("Empty response from AI");
     }
 
     return {
       content,
-      model: winner.model,
-      responseTimeMs: winner.responseTimeMs,
+      model: OPENROUTER_MODEL,
+      responseTimeMs,
     };
   } finally {
     clearTimeout(timeoutId);
