@@ -1,12 +1,12 @@
 // Shared AI model configuration for all edge functions
-// Ollama is the PRIMARY model, OpenRouter models are FALLBACK (race condition)
+// Gemini (OpenRouter) is PRIMARY, Ollama is FALLBACK
 
-// Single fallback model
+// Primary model
 export const OPENROUTER_MODEL = "google/gemini-2.0-flash-001";
 
 export const DEFAULT_TIMEOUT_MS = 20000;
 export const EXTENDED_TIMEOUT_MS = 25000;
-export const OLLAMA_TIMEOUT_MS = 15000; // Faster timeout for Ollama
+export const OLLAMA_TIMEOUT_MS = 15000;
 
 export interface AIRequestConfig {
   systemPrompt: string;
@@ -14,10 +14,10 @@ export interface AIRequestConfig {
   temperature?: number;
   maxTokens?: number;
   timeoutMs?: number;
-  ollamaModel?: string; // Default: "llama3.2" or user preference
+  ollamaModel?: string;
 }
 
-// Try Ollama first, then fallback to OpenRouter race
+// Try Gemini first, then fallback to Ollama
 export async function callAIWithRace(config: AIRequestConfig): Promise<{
   content: string;
   model: string;
@@ -25,29 +25,100 @@ export async function callAIWithRace(config: AIRequestConfig): Promise<{
 }> {
   const startTime = Date.now();
   
-  // Try Ollama first (primary)
-  const ollamaResult = await tryOllama(config, startTime);
-  if (ollamaResult) {
-    return ollamaResult;
+  // Try Gemini first (primary)
+  const geminiResult = await tryGemini(config, startTime);
+  if (geminiResult) {
+    return geminiResult;
   }
 
-  // Fallback to OpenRouter (single model)
-  console.log("Ollama failed or unavailable, falling back to OpenRouter...");
-  return await callOpenRouterFallback(config, startTime);
+  // Fallback to Ollama
+  console.log("Gemini failed, falling back to Ollama...");
+  return await callOllamaFallback(config, startTime);
 }
 
-// Ollama primary call
-async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
+// Gemini primary call via OpenRouter
+async function tryGemini(config: AIRequestConfig, startTime: number): Promise<{
   content: string;
   model: string;
   responseTimeMs: number;
 } | null> {
+  const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
+  if (!OPENROUTER_API_KEY) {
+    console.log("OPENROUTER_API_KEY not configured, skipping Gemini");
+    return null;
+  }
+
+  const controller = new AbortController();
+  const timeoutMs = config.timeoutMs || DEFAULT_TIMEOUT_MS;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    console.log(`Trying Gemini: ${OPENROUTER_MODEL}`);
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://vagajusta.app",
+        "X-Title": "VagaJusta",
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [
+          { role: "system", content: config.systemPrompt },
+          { role: "user", content: config.userMessage },
+        ],
+        temperature: config.temperature ?? 0.2,
+        max_tokens: config.maxTokens ?? 4000,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Gemini failed: ${response.status}`, errorText);
+      return null;
+    }
+
+    const result = await response.json();
+    const responseTimeMs = Date.now() - startTime;
+    const content = result.choices?.[0]?.message?.content;
+
+    if (!content) {
+      console.error("Empty response from Gemini");
+      return null;
+    }
+
+    console.log(`Success with ${OPENROUTER_MODEL} in ${responseTimeMs}ms`);
+    return {
+      content,
+      model: OPENROUTER_MODEL,
+      responseTimeMs,
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Gemini timeout");
+    } else {
+      console.error("Gemini error:", error);
+    }
+    return null;
+  }
+}
+
+// Ollama fallback call
+async function callOllamaFallback(config: AIRequestConfig, startTime: number): Promise<{
+  content: string;
+  model: string;
+  responseTimeMs: number;
+}> {
   const OLLAMA_API_URL = Deno.env.get("OLLAMA_API_URL");
   const OLLAMA_API_KEY = Deno.env.get("OLLAMA_API_KEY");
   
   if (!OLLAMA_API_URL) {
-    console.log("OLLAMA_API_URL not configured, skipping Ollama");
-    return null;
+    throw new Error("No fallback available: OLLAMA_API_URL not configured");
   }
 
   const controller = new AbortController();
@@ -55,13 +126,12 @@ async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
   const model = config.ollamaModel || "llama3.2";
 
   try {
-    console.log(`Trying Ollama (${model})...`);
+    console.log(`Calling Ollama fallback: ${model}`);
     
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
     
-    // Add API key if configured
     if (OLLAMA_API_KEY) {
       headers["Authorization"] = `Bearer ${OLLAMA_API_KEY}`;
     }
@@ -87,8 +157,7 @@ async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error(`Ollama failed: ${response.status}`);
-      return null;
+      throw new Error(`Ollama failed: ${response.status}`);
     }
 
     const result = await response.json();
@@ -96,8 +165,7 @@ async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
     const content = result.message?.content;
 
     if (!content) {
-      console.error("Empty response from Ollama");
-      return null;
+      throw new Error("Empty response from Ollama");
     }
 
     console.log(`Success with Ollama (${model}) in ${responseTimeMs}ms`);
@@ -108,74 +176,7 @@ async function tryOllama(config: AIRequestConfig, startTime: number): Promise<{
     };
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === "AbortError") {
-      console.error("Ollama timeout");
-    } else {
-      console.error("Ollama error:", error);
-    }
-    return null;
-  }
-}
-
-// OpenRouter fallback - single model
-async function callOpenRouterFallback(config: AIRequestConfig, startTime: number): Promise<{
-  content: string;
-  model: string;
-  responseTimeMs: number;
-}> {
-  const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-  if (!OPENROUTER_API_KEY) {
-    throw new Error("OPENROUTER_API_KEY is not configured");
-  }
-
-  const controller = new AbortController();
-  const timeoutMs = config.timeoutMs || DEFAULT_TIMEOUT_MS;
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    console.log(`Calling OpenRouter: ${OPENROUTER_MODEL}`);
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://vagajusta.app",
-        "X-Title": "VagaJusta",
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        messages: [
-          { role: "system", content: config.systemPrompt },
-          { role: "user", content: config.userMessage },
-        ],
-        temperature: config.temperature ?? 0.2,
-        max_tokens: config.maxTokens ?? 4000,
-      }),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`OpenRouter failed: ${response.status}`, errorText);
-      throw new Error(`OpenRouter failed: ${response.status}`);
-    }
-
-    const result = await response.json();
-    const responseTimeMs = Date.now() - startTime;
-    console.log(`Success with ${OPENROUTER_MODEL} in ${responseTimeMs}ms`);
-
-    const content = result.choices?.[0]?.message?.content;
-    if (!content) {
-      throw new Error("Empty response from AI");
-    }
-
-    return {
-      content,
-      model: OPENROUTER_MODEL,
-      responseTimeMs,
-    };
-  } finally {
-    clearTimeout(timeoutId);
+    throw error;
   }
 }
 
