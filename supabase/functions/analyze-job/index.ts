@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace, extractJSON } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -54,81 +55,21 @@ serve(async (req) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
-
     const userMessage = description 
       ? `Analise esta vaga:\n\n${description}`
       : `Analise uma vaga para o cargo: ${title}${area ? ` na área de ${area}` : ''}`;
 
-    // All models run in parallel - first response wins
-    const models = [
-      "openai/gpt-oss-120b:free",
-      "mistralai/mistral-small-3.1-24b-instruct:free",
-      "nvidia/nemotron-3-nano-30b-a3b:free",
-      "xiaomi/mimo-v2-flash",
-      "deepseek/deepseek-r1-0528:free"
-    ];
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-    
-    let data;
-    const startTime = Date.now();
-    
-    try {
-      // Race all models - first successful response wins
-      const fetchPromises = models.map(async (model) => {
-        console.log(`Starting model: ${model}`);
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMessage },
-            ],
-            temperature: 0.3,
-          }),
-          signal: controller.signal,
-        });
+    const aiResponse = await callAIWithRace({
+      systemPrompt: SYSTEM_PROMPT,
+      userMessage,
+      temperature: 0.3,
+      maxTokens: 4000,
+      timeoutMs: 30000,
+    });
 
-        if (!response.ok) {
-          throw new Error(`${model} failed: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
-        return { model, data: result };
-      });
-
-      // First successful response wins
-      const winner = await Promise.any(fetchPromises);
-      data = winner.data;
-      console.log(`Winner: ${winner.model}`);
-      clearTimeout(timeoutId);
-    } catch (err) {
-      clearTimeout(timeoutId);
-      throw err;
-    }
-
-    const content = data.choices?.[0]?.message?.content;
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
     
-    // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Failed to parse job analysis");
-    }
-
-    const analysis = JSON.parse(jsonMatch[0]);
+    const analysis = extractJSON(aiResponse.content);
 
     return new Response(
       JSON.stringify(analysis),

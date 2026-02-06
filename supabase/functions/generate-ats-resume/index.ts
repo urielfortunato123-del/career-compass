@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace, extractJSON } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,11 +61,6 @@ serve(async (req) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
-
     const systemPrompt = career_transition 
       ? SYSTEM_PROMPT + TRANSITION_ADDITIONS 
       : SYSTEM_PROMPT;
@@ -93,48 +89,17 @@ O candidato está em transição para a área de: ${target_area}
 Aplique as regras de transição de carreira.`;
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://vagajusta.app",
-        "X-Title": "VagaJusta",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage },
-        ],
-        temperature: 0.4,
-      }),
+    const aiResponse = await callAIWithRace({
+      systemPrompt,
+      userMessage,
+      temperature: 0.4,
+      maxTokens: 6000,
+      timeoutMs: 30000,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI Gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      throw new Error("Failed to generate ATS resume");
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
     
-    // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Failed to parse ATS resume generation");
-    }
-
-    const result = JSON.parse(jsonMatch[0]);
+    const result = extractJSON(aiResponse.content);
 
     return new Response(
       JSON.stringify(result),

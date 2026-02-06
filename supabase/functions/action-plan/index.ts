@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace, extractJSON } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -70,11 +71,6 @@ serve(async (req) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
-
     const userMessage = `Gere um plano de ação de ${period} dias para este candidato:
 
 SCORE ATUAL: ${score || 'Não calculado'}
@@ -88,48 +84,17 @@ ${career_transition ? `TRANSIÇÃO DE CARREIRA: Sim, para ${target_area || 'nova
 
 Gere um plano detalhado e realista para o período de ${period} dias.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://vagajusta.app",
-        "X-Title": "VagaJusta",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userMessage },
-        ],
-        temperature: 0.4,
-      }),
+    const aiResponse = await callAIWithRace({
+      systemPrompt: SYSTEM_PROMPT,
+      userMessage,
+      temperature: 0.4,
+      maxTokens: 4000,
+      timeoutMs: 30000,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI Gateway error:", response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      throw new Error("Failed to generate action plan");
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
     
-    // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Failed to parse action plan");
-    }
-
-    const result = JSON.parse(jsonMatch[0]);
+    const result = extractJSON(aiResponse.content);
 
     return new Response(
       JSON.stringify(result),

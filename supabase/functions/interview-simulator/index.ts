@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace, extractJSON } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,11 +53,6 @@ serve(async (req) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
-    }
-
     let userMessage = `Gere 5 perguntas de entrevista para esta vaga:
 
 VAGA:
@@ -75,72 +71,17 @@ Skills: ${resume.technical_skills?.join(', ') || 'Não informadas'}
 Personalize as perguntas considerando possíveis lacunas entre o perfil e a vaga.`;
     }
 
-    const models = [
-      "google/gemini-2.0-flash-001",
-      "zhipu/glm-4.5-flash-250414"
-    ];
+    const aiResponse = await callAIWithRace({
+      systemPrompt: SYSTEM_PROMPT,
+      userMessage,
+      temperature: 0.5,
+      maxTokens: 4000,
+      timeoutMs: 30000,
+    });
 
-    let data;
-    let lastError: { status: number; text: string } | null = null;
-
-    for (const model of models) {
-      console.log(`Trying model: ${model}`);
-      
-      try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMessage },
-            ],
-            temperature: 0.5,
-          }),
-        });
-
-        if (response.ok) {
-          data = await response.json();
-          console.log(`Success with model: ${model}`);
-          break;
-        }
-
-        const errorText = await response.text();
-        console.error(`Model ${model} failed:`, response.status, errorText);
-        lastError = { status: response.status, text: errorText };
-
-        // Continue to next model on errors
-      } catch (err) {
-        console.error(`Model ${model} exception:`, err);
-        lastError = { status: 0, text: String(err) };
-      }
-    }
-
-    if (!data) {
-      if (lastError?.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns minutos." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error("Failed to generate interview questions - all models failed");
-    }
-
-    const content = data.choices?.[0]?.message?.content;
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
     
-    // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Failed to parse interview simulation");
-    }
-
-    const result = JSON.parse(jsonMatch[0]);
+    const result = extractJSON(aiResponse.content);
 
     return new Response(
       JSON.stringify(result),

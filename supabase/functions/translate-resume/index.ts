@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callAIWithRace } from "../_shared/ai-models.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,11 +19,6 @@ serve(async (req) => {
         JSON.stringify({ error: "Conteúdo do currículo é obrigatório" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    }
-
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
-    if (!OPENROUTER_API_KEY) {
-      throw new Error("OPENROUTER_API_KEY is not configured");
     }
 
     const languageNames: Record<string, string> = {
@@ -50,71 +46,18 @@ RULES:
 
 Output ONLY the translated resume, nothing else.`;
 
-    // All models run in parallel - first response wins
-    const models = [
-      "openai/gpt-oss-120b:free",
-      "mistralai/mistral-small-3.1-24b-instruct:free",
-      "nvidia/nemotron-3-nano-30b-a3b:free",
-      "xiaomi/mimo-v2-flash",
-      "deepseek/deepseek-r1-0528:free"
-    ];
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-    
-    let data;
-    const startTime = Date.now();
-    
-    try {
-      // Race all models - first successful response wins
-      const fetchPromises = models.map(async (model) => {
-        console.log(`Starting model: ${model}`);
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://vagajusta.app",
-            "X-Title": "VagaJusta",
-          },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content },
-            ],
-            temperature: 0.2,
-          }),
-          signal: controller.signal,
-        });
+    const aiResponse = await callAIWithRace({
+      systemPrompt,
+      userMessage: content,
+      temperature: 0.2,
+      maxTokens: 4000,
+      timeoutMs: 30000,
+    });
 
-        if (!response.ok) {
-          throw new Error(`${model} failed: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log(`Success with ${model} in ${Date.now() - startTime}ms`);
-        return { model, data: result };
-      });
-
-      // First successful response wins
-      const winner = await Promise.any(fetchPromises);
-      data = winner.data;
-      console.log(`Winner: ${winner.model}`);
-      clearTimeout(timeoutId);
-    } catch (err) {
-      clearTimeout(timeoutId);
-      throw err;
-    }
-
-    const translatedContent = data.choices?.[0]?.message?.content;
-    
-    if (!translatedContent) {
-      throw new Error("Empty response from AI");
-    }
+    console.log(`Response from ${aiResponse.model} in ${aiResponse.responseTimeMs}ms`);
 
     return new Response(
-      JSON.stringify({ translatedContent }),
+      JSON.stringify({ translatedContent: aiResponse.content }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
